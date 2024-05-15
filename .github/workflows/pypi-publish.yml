@@ -9,31 +9,40 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
 
 jobs:
-  deploy:
-
+  pypi-publish:
+    name: Publish to PyPI
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@main
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build
-    - name: Build package
-      run: python -m build
-    - name: Publish package
+      run: >-
+        python -m
+        pip install
+        build
+        twine
+    - name: Build a binary wheel and a source tarball
+      run: >-
+        python -m
+        build
+        --sdist
+        --wheel
+        .
+    - name: Publish
+      run: >-
+        twine
+        upload
+        dist/*
+    - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
-        user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
