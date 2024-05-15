@@ -20,12 +20,12 @@ __plugin_meta__ = PluginMetadata(
     description="调用科大讯飞星火大语言模型官方API的聊天机器人插件，适用于所有模型版本（默认当前最新（v3.5）），支持上下文关联、人物预设",
     usage=help_info,
     type='application',
-    homepage="https://github.com/CCLMSY/nonebot_plugin_sparkapi",
+    homepage="https://github.com/CCLMSY/nonebot-plugin-sparkapi",
     config=Config,
     supported_adapters={"~onebot.v11"},
     extra = {
         "author": "CCLMSY",
-        "version": "1.0.0"
+        "version": "1.0.5"
     }
 )
 
@@ -36,8 +36,8 @@ appid = conf.sparkapi_app_id
 api_secret = conf.sparkapi_api_secret
 api_key = conf.sparkapi_api_key
 
-if not appid or not api_secret or not api_key:
-    raise ConfigError("请设置API信息,可前往 https://console.xfyun.cn/ 获取")
+# if not appid or not api_secret or not api_key:
+#     raise ConfigError("请设置API信息,可前往 https://console.xfyun.cn/ 获取")
 
 model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
