@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_sparkapi"
-version = "1.0.0"
+version = "1.0.2"
 description = "Nonebot2 ChatBot that calls the official API of the KDDI Spark LLM for all model versions, defaulting to the current latest (v3.5)"
 authors = [
     { name = "CCLMSY", email = "2502408581@qq.com" }
