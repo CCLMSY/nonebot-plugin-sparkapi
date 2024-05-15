@@ -116,4 +116,4 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 | clear | 是 | 私聊/群聊 | 清除当前对话上下文 |
 
 ### 效果图
-![demo1](https://github.com/CCLMSY/nonebot-plugin-sparkapi/blob/resources/demo1.jpg)
+![demo](https://github.com/CCLMSY/nonebot-plugin-sparkapi/blob/resources/demo.jpg)
