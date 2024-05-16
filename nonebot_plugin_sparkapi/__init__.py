@@ -192,16 +192,8 @@ async def loadsession_handle_function(event: MessageEvent):
     else:
         await loadsession.finish(MS.text("未保存对话记录"))
 
-# 根据消息类型创建会话ID
-def get_session_id(event):
-    if isinstance(event, PrivateMessageEvent):
-        return "private_" + str(event.user_id)
-    if group_public:
-        return event.get_session_id().replace(str(event.user_id), "public")
-    else:
-        return event.get_session_id()
 
-def request(history, sid, pname):
+async def request(history, sid, pname):
     history = deepcopy(history)
     history.insert(0, presets[pname])
     history = checklen(history)
@@ -210,6 +202,15 @@ def request(history, sid, pname):
     SparkApi.main(appid,api_key,api_secret,Spark_url,domain,history,sid)
     ans = SparkApi.answer
     return ans
+
+# 根据消息类型创建会话ID
+def get_session_id(event):
+    if isinstance(event, PrivateMessageEvent):
+        return "private_" + str(event.user_id)
+    if group_public:
+        return event.get_session_id().replace(str(event.user_id), "public")
+    else:
+        return event.get_session_id()
 
 def checklen(text): # 检查对话长度
     while (getlength(text) > max_length):
