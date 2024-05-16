@@ -12,8 +12,8 @@ from copy import deepcopy
 
 from .config import Config, ConfigError
 from . import SparkApi,funcs
-from .funcs import gethash,getlength,appendText
-from .data import presets, presets_lst, help_info
+from .funcs import gethash,getlength,appendText,save_session,load_session
+from .data import presets, presets_lst, help_info, commands
 
 __plugin_meta__ = PluginMetadata(
     name="科大讯飞星火大语言模型官方API聊天机器人插件",
@@ -43,8 +43,6 @@ model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
 domain = funcs.get_domain(model_version)
 
-print("model_version:",model_version,"Spark_url:",Spark_url,"domain:",domain)
-
 command_chat = conf.sparkapi_command_chat
 private_chat = conf.sparkapi_private_chat
 group_public = conf.sparkapi_group_public
@@ -62,11 +60,13 @@ spname = {} # 选取的prompt
 # priority:数字越小优先级越高
 # 私聊功能已关闭
 
-sparkhelp = on_command("help",block=True,priority=5,rule = to_me()) # 显示帮助信息
-showpresets = on_command("showpresets",block=True,priority=5,rule = to_me()) # 显示人物预设
-setpreset = on_command("setpreset",block=True,priority=5,rule = to_me()) # 更改人物预设
-clear = on_command("clear",block=True,priority=5,rule = to_me()) # 清空对话
+sparkhelp = on_command(commands["help"],block=True,priority=5,rule = to_me()) # 显示帮助信息
+showpresets = on_command(commands["showpresets"],block=True,priority=5,rule = to_me()) # 显示人物预设
+setpreset = on_command(commands["setpreset"],block=True,priority=5,rule = to_me()) # 更改人物预设
+clear = on_command(commands["clear"],block=True,priority=5,rule = to_me()) # 清空对话
 chat = on_command(command_chat,block=True,priority=priority,rule = to_me()) # 具有上下文的对话
+savesession = on_command(commands["savesession"],block=True,priority=5,rule = to_me()) # 保存对话记录
+loadsession = on_command(commands["loadsession"],block=True,priority=5,rule = to_me()) # 加载对话记录
 
 @chat.handle()
 async def chat_handle_function(event: MessageEvent, msg: Message = CommandArg()):
@@ -171,6 +171,26 @@ async def clear_handle_function(event: MessageEvent):
         await clear.finish(MS.text("对话已清空"))
     else:
         await clear.finish(MS.text("无对话记录"))
+
+@savesession.handle()
+async def savesession_handle_function(event: MessageEvent):
+    session_id = get_session_id(event)
+    if session_id in sessions:
+        save_session(sessions[session_id], spname[session_id], session_id)
+        await savesession.finish(MS.text("当前对话记录已保存！"))
+    else:
+        await savesession.finish(MS.text("当前无对话记录"))
+
+@loadsession.handle()
+async def loadsession_handle_function(event: MessageEvent):
+    session_id = get_session_id(event)
+    session, pname = load_session(session_id)
+    if session:
+        sessions[session_id] = session
+        spname[session_id] = pname
+        await loadsession.finish(MS.text("已加载上次保存的对话记录！"))
+    else:
+        await loadsession.finish(MS.text("未保存对话记录"))
 
 # 根据消息类型创建会话ID
 def get_session_id(event):

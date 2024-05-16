@@ -33,21 +33,26 @@ presets = { #
 presets_lst = "\n".join([f"{id}. {name}" for id, name in enumerate(presets.keys(), start=1)])
 presets_lst = f"【人物预设】\n{presets_lst}"
 if setprset_clear:
-    presets_lst += "\n\n⚠更改人物预设时会清空对话历史记录"
+    presets_lst += "\n\n⚠更改人物预设时会清空对话！"
 
-command_help = "help"
-command_showpresets = "showpresets"
-command_setpreset = "setpreset"
-command_preset = "preset"
-command_clear = "clear"
+commands = {
+    "help" : "help",
+    "showpresets" : "showpresets",
+    "setpreset" : "setpreset",
+    "clear" : "clear",
+    "savesession" : "savesession",
+    "loadsession" : "loadsession"
+}
 
 commands_lst = {
     f"{command_chat+' + ' if command_chat else '直接发送'}对话内容" : "与机器人进行对话",
-    command_help : "显示帮助信息",
-    command_showpresets : "显示人物预设",
-    command_setpreset : "更改人物预设",
-    command_preset + " + 序号" : "选择人物预设",
-    command_clear : "清空对话"
+    commands["help"] : "显示帮助信息",
+    commands["showpresets"] : "显示人物预设",
+    commands["setpreset"] : "更改人物预设",
+    f"{commands['setpreset']} + 序号" : "选择人物预设",
+    commands["savesession"] : "保存当前对话记录",
+    commands["loadsession"] : "加载上次保存的对话记录",
+    commands["clear"] : "清除对话"
 }
 
 help_info = "【帮助信息】\n"
