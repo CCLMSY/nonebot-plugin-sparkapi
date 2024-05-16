@@ -43,6 +43,8 @@ model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
 domain = funcs.get_domain(model_version)
 
+print("model_version:",model_version,"Spark_url:",Spark_url,"domain:",domain)
+
 command_chat = conf.sparkapi_command_chat
 private_chat = conf.sparkapi_private_chat
 group_public = conf.sparkapi_group_public
