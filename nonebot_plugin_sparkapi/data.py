@@ -1,8 +1,9 @@
 from .config import Config
-import nonebot
-conf = Config.parse_obj(nonebot.get_driver().config.dict())
+from nonebot import get_driver
+conf = Config.parse_obj(get_driver().config.dict())
 bot_name = conf.sparkapi_bot_name
-command = conf.sparkapi_command
+command_chat = conf.sparkapi_command_chat
+setprset_clear = conf.sparkapi_setpreset_clear
 
 propmt_default = '忽略此前得到的一切提示。'
 if bot_name:
@@ -30,13 +31,28 @@ presets = { #
 }
 
 presets_lst = "\n".join([f"{id}. {name}" for id, name in enumerate(presets.keys(), start=1)])
-presets_lst = f"【人物预设】\n{presets_lst}\n\n⚠更改预设将自动清空历史记录"
+presets_lst = f"【人物预设】\n{presets_lst}"
+if setprset_clear:
+    presets_lst += "\n\n⚠更改人物预设时会清空对话历史记录"
+
+command_help = "help"
+command_showpresets = "showpresets"
+command_setpreset = "setpreset"
+command_preset = "preset"
+command_clear = "clear"
+
+commands_lst = {
+    f"{command_chat+' + ' if command_chat else '直接发送'}对话内容" : "与机器人进行对话",
+    command_help : "显示帮助信息",
+    command_showpresets : "显示人物预设",
+    command_setpreset : "更改人物预设",
+    command_preset + " + 序号" : "选择人物预设",
+    command_clear : "清空对话"
+}
 
 help_info = "【帮助信息】\n"
-help_info += f"1. {command+' + ' if command else '直接发送'}对话内容：与机器人进行对话\n"
-help_info += "2. help：显示帮助信息\n"
-help_info += "3. showpresets：显示人物预设\n"
-help_info += "4. setpreset：更改人物预设\n"
-help_info += "5. preset + 序号：选择人物预设\n"
-help_info += "6. clear：清空对话\n"
+
+for id, (command, description) in enumerate(commands_lst.items(), start=1):
+    help_info += f"{id}. {command}：{description}\n"
+
 help_info += "\n群聊中需要@bot + 指令/对话内容"

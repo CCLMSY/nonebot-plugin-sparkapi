@@ -43,11 +43,12 @@ model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
 domain = funcs.get_domain(model_version)
 
-command = conf.sparkapi_command
+command_chat = conf.sparkapi_command_chat
 private_chat = conf.sparkapi_private_chat
 group_public = conf.sparkapi_group_public
 group_at = conf.sparkapi_group_at
 fnotice = conf.sparkapi_fnotice
+setpreset_clear = conf.sparkapi_setpreset_clear
 
 max_length = conf.sparkpai_max_length
 priority = conf.sparkapi_priority
@@ -63,7 +64,7 @@ sparkhelp = on_command("help",block=True,priority=5,rule = to_me()) # 显示帮�
 showpresets = on_command("showpresets",block=True,priority=5,rule = to_me()) # 显示人物预设
 setpreset = on_command("setpreset",block=True,priority=5,rule = to_me()) # 更改人物预设
 clear = on_command("clear",block=True,priority=5,rule = to_me()) # 清空对话
-chat = on_command(command,block=True,priority=priority,rule = to_me()) # 具有上下文的对话
+chat = on_command(command_chat,block=True,priority=priority,rule = to_me()) # 具有上下文的对话
 
 @chat.handle()
 async def chat_handle_function(event: MessageEvent, msg: Message = CommandArg()):
@@ -134,8 +135,9 @@ async def fsetpreset(event, pid):
     session_id = get_session_id(event)
     sid = gethash(event.get_session_id())[-20:]
 
-    sessions[session_id] = []
-    spname[session_id] = list(presets.keys())[int(pid)-1]
+    if setpreset_clear:
+        sessions[session_id] = []
+        spname[session_id] = list(presets.keys())[int(pid)-1]
     
     await setpreset.send(MS.text("已选择人物预设：" + spname[session_id]))
     # sessions[session_id].append({"role": "user", "content": "现在，请进行一段简短的自我介绍"})

@@ -14,6 +14,14 @@ import json
 import websocket
 import ssl
 
+from .config import Config
+from nonebot import get_driver
+conf = Config.parse_obj(get_driver().config.dict())
+
+model_top_k = conf.sparkapi_model_top_k
+model_temperature = conf.sparkapi_model_temperature
+max_length = conf.sparkpai_max_length
+
 answer = ""
 
 class Ws_Param(object):
@@ -117,9 +125,9 @@ def gen_params(appid, domain,question):
 
             "chat": {
                 "domain": domain,
-                "temperature": 0.5,
-                "max_tokens": 4096,
-                "top_k": 5,
+                "temperature": model_temperature,
+                "max_tokens": max_length//2,
+                "top_k": model_top_k,
 
                 "auditing": "default"
             }
