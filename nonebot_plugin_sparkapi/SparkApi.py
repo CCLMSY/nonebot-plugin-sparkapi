@@ -1,21 +1,21 @@
-# type: ignore
+#type:ignore
 from datetime import datetime
 from time import mktime
 from wsgiref.handlers import format_date_time
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
 
 import hmac
 import hashlib
 import base64
-from urllib.parse import urlencode
 
-import _thread as thread
+import asyncio
 import json
-import websocket
+import websockets
 import ssl
 
 from .config import Config
 from nonebot import get_driver
+
 conf = Config.parse_obj(get_driver().config.dict())
 
 model_top_k = conf.sparkapi_model_top_k
@@ -69,35 +69,15 @@ class Ws_Param(object):
         # 此处打印出建立连接时候的url,参考本demo的时候可取消上方打印的注释，比对相同参数时生成的url与自己代码生成的url是否一致
         return url
 
-# 收到websocket错误的处理
-def on_error(ws, error):
-    print("### error:", error)
-
-
-# 收到websocket关闭的处理
-def on_close(ws, *args):
-    return
-
-# 收到websocket连接建立的处理
-def on_open(ws):
-    thread.start_new_thread(run, (ws,))
-
-
-def run(ws, *args):
-    data = json.dumps(gen_params(appid=ws.appid, domain= ws.domain,question=ws.question))
-    ws.send(data)
-
-
-# 收到websocket消息的处理
-def on_message(ws, message):
+# 收到websockets消息的处理
+async def on_message(ws, message):
     # print(message)
-    # print(time.time())
     data = json.loads(message)
     code = data['header']['code']
     if code != 0:
         err = f'请求错误: {code}, {data}'
         print(err)
-        ws.close()
+        await ws.close()
     else:
         # global sid
         # sid = data["header"]["sid"]
@@ -109,26 +89,36 @@ def on_message(ws, message):
         answer += content
         # print(1)
         if status == 2:
-            ws.close()
+            await ws.close()
 
+async def connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid):
+    wsParam = Ws_Param(appid, api_key, api_secret, Spark_url)
+    ws_url = wsParam.create_url()
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
 
-def gen_params(appid, domain,question):
-    """
-    通过appid和用户的提问来生成请参数
-    """
+    async with websockets.connect(ws_url, ssl=ssl_context) as ws:
+        ws.appid = appid
+        ws.question = question
+        ws.domain = domain
+        ws.sid = sid
+        await ws.send(json.dumps(gen_params(appid, domain, question)))
+        async for message in ws:
+            await on_message(ws, message)
+
+def gen_params(appid, domain, question):
     data = {
         "header": {
             "app_id": appid,
             "uid": "1234"
         },
         "parameter": {
-
             "chat": {
                 "domain": domain,
                 "temperature": model_temperature,
-                "max_tokens": max_length//2,
+                "max_tokens": max_length // 2,
                 "top_k": model_top_k,
-
                 "auditing": "default"
             }
         },
@@ -140,13 +130,6 @@ def gen_params(appid, domain,question):
     }
     return data
 
-def main(appid, api_key, api_secret, Spark_url,domain, question,sid):
-    wsParam = Ws_Param(appid, api_key, api_secret, Spark_url)
-    websocket.enableTrace(False)
-    wsUrl = wsParam.create_url()
-    ws = websocket.WebSocketApp(wsUrl, on_message=on_message, on_error=on_error, on_close=on_close, on_open=on_open)
-    ws.appid = appid 
-    ws.question = question
-    ws.domain = domain
-    ws.sid = sid
-    ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+def main(appid, api_key, api_secret, Spark_url, domain, question, sid):
+    asyncio.run(connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid))
+
