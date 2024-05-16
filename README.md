@@ -93,21 +93,21 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
-| sparkapi_app_id | 是 | "" | APPID |
-| sparkapi_api_secret | 是 | "" | APISecret |
-| sparkapi_api_key | 是 | "" | APIKey |
-| sparkapi_model_version | 否 | "" | 星火大模型的版本，默认为当前最新。<br>可选值：v3.5, v3.0, v2.0, v1.5 |
-| sparkapi_model_top_k | 否 | 4 | 平衡生成文本的质量和多样性。<br>较小的 k 值会减少随机性，使得输出更加稳定；<br>而较大的 k 值会增加随机性，产生更多新颖的输出。<br>取值范围[1, 6] |
-| sparkapi_model_temperature | 否 | 0.5 | 控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。<br>取值范围 (0，1] |
-| sparkapi_command_chat | 否 | "" | 机器人对话指令，默认为空可直接对话<br>（需要同时在`.env`中配置命令起始字符为空<br>COMMAND_START = [""]） |
-| sparkapi_private_chat | 否 | True | 是否允许私聊使用 |
-| sparkapi_group_public | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
-| sparkapi_group_at | 否 | True | 群聊回复消息时是否需要@提问者 |
-| sparkapi_fnotice | 否 | True | 收到请求时是否提示“已收到请求” |
-| sparkapi_priority | 否 | 90 | 事件响应器优先级，[1,99]，数字越小优先级越高 |
-| sparkpai_max_length | 否 | 8000 | 上下文最大长度，[1,8000]<br>单次发送和回复的消息不能超过该项的一半 |
-| sparkapi_setpreset_clear | 否 | True | 切换人物预设时是否清除当前对话上下文 |
-| sparkapi_bot_name | 否 | "" | 机器人的名字 |
+| SPARKAPI_APP_ID | 是 | "" | APPID |
+| SPARKAPI_API_SECRET | 是 | "" | APISecret |
+| SPARKAPI_API_KEY | 是 | "" | APIKey |
+| SPARKAPI_MODEL_VERSION | 否 | "" | 星火大模型的版本，默认为当前最新。<br>可选值：v3.5, v3.0, v2.0, v1.5 |
+| SPARKAPI_MODEL_TOP_K | 否 | 4 | 平衡生成文本的质量和多样性。<br>较小的 k 值会减少随机性，使得输出更加稳定；<br>而较大的 k 值会增加随机性，产生更多新颖的输出。<br>取值范围[1, 6] |
+| SPARKAPI_MODEL_TEMPERATURE | 否 | 0.5 | 控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。<br>取值范围 (0，1] |
+| SPARKAPI_COMMAND_CHAT | 否 | "" | 机器人对话指令，默认为空可直接对话<br>（需要同时在`.env`中配置命令起始字符为空<br>COMMAND_START = [""]） |
+| SPARKAPI_PRIVATE_CHAT | 否 | True | 是否允许私聊使用 |
+| SPARKAPI_GROUP_PUBLIC | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
+| SPARKAPI_GROUP_AT | 否 | True | 群聊回复消息时是否需要@提问者 |
+| SPARKAPI_FNOTICE | 否 | True | 收到请求时是否提示“已收到请求” |
+| SPARKAPI_PRIORITY | 否 | 90 | 事件响应器优先级，[1,99]，数字越小优先级越高 |
+| SPARKPAI_MAX_LENGTH | 否 | 8000 | 上下文最大长度，[1,8000]<br>单次发送和回复的消息不能超过该项的一半 |
+| SPARKAPI_SETPRESET_CLEAR | 否 | True | 切换人物预设时是否清除当前对话上下文 |
+| SPARKAPI_BOT_NAME | 否 | "" | 机器人的名字 |
 
 
 ## 🎉 使用
