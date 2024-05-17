@@ -11,7 +11,7 @@ class Config(BaseModel):
     sparkapi_model_top_k: int = 4 # 平衡生成文本的质量和多样性。较小的 k 值会减少随机性，使得输出更加稳定；而较大的 k 值会增加随机性，产生更多新颖的输出。取值范围[1, 6]，默认为4
     sparkapi_model_temperature : float = 0.5 # 控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。取值范围 (0，1]，默认为0.5
 
-    sparkapi_command_chat :str = "" # 机器人对话指令，默认为空可直接对话
+    sparkapi_command_chat :str = "" # 机器人对话指令，默认为空可直接对话（需要同时在`.env`中配置命令起始字符为空：COMMAND_START = [""]）
     sparkapi_private_chat: bool = True # 允许私聊
     sparkapi_group_public: bool = False # 群聊启用公共会话：True：所有人共享同一会话；False：每个人的会话各自独立
     sparkapi_group_at: bool = True # 群聊回复时是否需要@提问者
@@ -25,10 +25,21 @@ class Config(BaseModel):
     sparkapi_bot_name: str = "" # 机器人名字
 
 commands = {
+    "chat" : "chat", # 此处chat项只是为了保持代码一致性，在此处修改不生效，需要修改该命令请参阅插件文档
     "help" : "help", # 显示帮助信息
-    "showpresets" : "showpresets", # 显示人物预设
-    "setpreset" : "setpreset", # 更改人物预设
+    "showpresets" : "presets", # 显示人物预设
+    "setpreset" : "set", # 更改人物预设
     "clear" : "clear", # 清空对话
-    "savesession" : "savesession", # 保存对话记录
-    "loadsession" : "loadsession"  # 加载对话记录
+    "savesession" : "save", # 保存对话记录
+    "loadsession" : "load"  # 加载对话记录
+}
+commands_lst = {
+    f"{commands['chat'] + ' + ' if commands['chat'] else '直接发送'}对话内容" : "与机器人进行对话",
+    commands["help"] : "显示帮助信息",
+    commands["showpresets"] : "显示人物预设",
+    commands["setpreset"] : "更改人物预设",
+    f"{commands['setpreset']} + 序号" : "选择人物预设",
+    commands["savesession"] : "保存当前对话记录",
+    commands["loadsession"] : "加载上次保存的对话记录",
+    commands["clear"] : "清除对话"
 }

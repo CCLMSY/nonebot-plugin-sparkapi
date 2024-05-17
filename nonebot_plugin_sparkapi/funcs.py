@@ -1,8 +1,6 @@
 import hashlib
-
 from nonebot.adapters.onebot.v11 import PrivateMessageEvent
-
-from .config import Config
+from .config import Config, commands_lst
 from nonebot import get_driver
 conf = Config.parse_obj(get_driver().config.dict())
 
@@ -75,3 +73,11 @@ def checklen(text): # 修理对话长度
     while (getlength(text) > max_length):
         del text[1]
     return text
+
+
+help_info = "【帮助信息】\n"
+
+for id, (command, description) in enumerate(commands_lst.items(), start=1):
+    help_info += f"{id}. {command}：{description}\n"
+
+help_info += "\n群聊中需要@bot + 指令/对话内容"

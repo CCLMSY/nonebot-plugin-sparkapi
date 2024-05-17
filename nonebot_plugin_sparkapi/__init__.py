@@ -11,21 +11,20 @@ from copy import deepcopy
 
 from .config import Config, commands
 from . import SparkApi,funcs
-from .funcs import gethash,appendText,get_session_id,checklen
+from .funcs import gethash, appendText, get_session_id, checklen, help_info
 from .slsessions import save_session,load_session
-from .data import presets, presets_lst, help_info
+from .presets import presets, presets_lst
 
 __plugin_meta__ = PluginMetadata(
     name="科大讯飞星火大语言模型官方API聊天机器人插件",
-    description="调用科大讯飞星火大语言模型官方API的聊天机器人插件，适用于所有模型版本（默认当前最新（v3.5）），支持上下文关联、人物预设",
+    description="调用科大讯飞星火大语言模型官方API的聊天机器人插件。适用于所有模型版本（默认当前最新（v3.5）），支持上下文关联、人物预设",
     usage=help_info,
     type='application',
     homepage="https://github.com/CCLMSY/nonebot-plugin-sparkapi",
     config=Config,
     supported_adapters={"~onebot.v11"},
     extra = {
-        "author": "CCLMSY",
-        "version": "1.0.5"
+        "author": "CCLMSY"
     }
 )
 
@@ -39,16 +38,11 @@ api_key = conf.sparkapi_api_key
 # if not appid or not api_secret or not api_key:
 #     raise ConfigError("请设置API信息,可前往 https://console.xfyun.cn/ 获取")
 
-model_version = funcs.unify_model_version(conf.sparkapi_model_version)
-Spark_url = funcs.get_Spark_url(model_version)
-domain = funcs.get_domain(model_version)
-
 command_chat = conf.sparkapi_command_chat
+commands["chat"] = command_chat
 private_chat = conf.sparkapi_private_chat
 group_at = conf.sparkapi_group_at
 fnotice = conf.sparkapi_fnotice
-setpreset_clear = conf.sparkapi_setpreset_clear
-
 max_length = conf.sparkpai_max_length
 priority = conf.sparkapi_priority
 
@@ -63,7 +57,7 @@ sparkhelp = on_command(commands["help"],block=True,priority=5,rule = to_me()) # 
 showpresets = on_command(commands["showpresets"],block=True,priority=5,rule = to_me()) # 显示人物预设
 setpreset = on_command(commands["setpreset"],block=True,priority=5,rule = to_me()) # 更改人物预设
 clear = on_command(commands["clear"],block=True,priority=5,rule = to_me()) # 清空对话
-chat = on_command(command_chat,block=True,priority=priority,rule = to_me()) # 具有上下文的对话
+chat = on_command(commands["chat"],block=True,priority=priority,rule = to_me()) # 具有上下文的对话
 savesession = on_command(commands["savesession"],block=True,priority=5,rule = to_me()) # 保存对话记录
 loadsession = on_command(commands["loadsession"],block=True,priority=5,rule = to_me()) # 加载对话记录
 
@@ -87,7 +81,7 @@ async def chat_handle_function(event: MessageEvent, msg: Message = CommandArg())
 
     if session_id not in sessions:
         sessions[session_id] = []
-        spname[session_id] = "全能机器人"
+        spname[session_id] = "智能助手"
 
     # sessions[session_id].append({"role": "user", "content": content})
     sessions[session_id] = appendText("user",content,sessions[session_id])
@@ -128,7 +122,11 @@ async def setpreset_handle_function(event: MessageEvent, msg: Message = CommandA
 async def setpreset_handle_got(event: MessageEvent, pid: str = ArgPlainText()):
     await fsetpreset(event, pid)
 
+setpreset_clear = conf.sparkapi_setpreset_clear
+
 async def fsetpreset(event, pid):
+    if not pid.isdigit():
+        await setpreset.finish(MS.text("切换失败：非法输入"))
     if int(pid) > len(presets) or int(pid) <= 0:
         await setpreset.finish(MS.text("预设编号不存在"))
 
@@ -187,6 +185,10 @@ async def loadsession_handle_function(event: MessageEvent):
     else:
         await loadsession.finish(MS.text("未保存对话记录"))
 
+
+model_version = funcs.unify_model_version(conf.sparkapi_model_version)
+Spark_url = funcs.get_Spark_url(model_version)
+domain = funcs.get_domain(model_version)
 
 async def request(history, sid, pname):
     history = deepcopy(history)
