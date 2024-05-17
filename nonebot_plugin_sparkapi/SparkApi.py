@@ -1,4 +1,3 @@
-#type:ignore
 from datetime import datetime
 from time import mktime
 from wsgiref.handlers import format_date_time
@@ -94,11 +93,11 @@ async def on_message(ws, message):
 async def connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid):
     wsParam = Ws_Param(appid, api_key, api_secret, Spark_url)
     ws_url = wsParam.create_url()
-    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
+    # ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    # ssl_context.check_hostname = False
+    # ssl_context.verify_mode = ssl.CERT_NONE
 
-    async with websockets.connect(ws_url, ssl=ssl_context) as ws:
+    async with websockets.connect(ws_url) as ws:
         ws.appid = appid
         ws.question = question
         ws.domain = domain
@@ -130,6 +129,6 @@ def gen_params(appid, domain, question):
     }
     return data
 
-def main(appid, api_key, api_secret, Spark_url, domain, question, sid):
-    asyncio.run(connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid))
-
+async def main(appid, api_key, api_secret, Spark_url, domain, question, sid):
+    await connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid)
+    

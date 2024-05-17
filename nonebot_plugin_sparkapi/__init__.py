@@ -96,15 +96,14 @@ async def chat_handle_function(event: MessageEvent, msg: Message = CommandArg())
     try:
         history = sessions[session_id]
         pname = spname[session_id]
-        loop = asyncio.get_running_loop()
-        res = await loop.run_in_executor(None,request,history,sid,pname)
+        res = await request(history,sid,pname)
+        print("res:",res)
     except Exception as e:
         await chat.finish(MS.text(str(e)))
 
     # sessions[session_id].append({"role": "assistant", "content": res})
     sessions[session_id] = appendText("assistant",res,sessions[session_id])
-    checklen(sessions[session_id])
-
+    
     if isinstance(event, PrivateMessageEvent):
         await chat.finish(MS.text(res))
     else:
@@ -142,21 +141,18 @@ async def fsetpreset(event, pid):
         spname[session_id] = list(presets.keys())[int(pid)-1]
     
     await setpreset.send(MS.text("已选择人物预设：" + spname[session_id]))
-    # sessions[session_id].append({"role": "user", "content": "现在，请进行一段简短的自我介绍"})
     sessions[session_id] = appendText("user","现在，请进行一段简短的自我介绍",sessions[session_id])
 
     try:
         history = sessions[session_id]
         pname = spname[session_id]
-        loop = asyncio.get_running_loop()
-        res = await loop.run_in_executor(None,request,history,sid,pname)
+        res = await request(history,sid,pname)
     except Exception as e:
         await setpreset.finish(MS.text(str(e)))
 
     # sessions[session_id].append({"role": "assistant", "content": res})
     sessions[session_id] = appendText("assistant",res,sessions[session_id])
-    checklen(sessions[session_id])
-
+    
     if isinstance(event, PrivateMessageEvent):
         await setpreset.finish(MS.text(res))
     else:
@@ -199,9 +195,8 @@ async def request(history, sid, pname):
     history = checklen(history)
     print(history)
     SparkApi.answer = ""
-    SparkApi.main(appid,api_key,api_secret,Spark_url,domain,history,sid)
-    ans = SparkApi.answer
-    return ans
+    await SparkApi.main(appid,api_key,api_secret,Spark_url,domain,history,sid)
+    return SparkApi.answer
 
 # 根据消息类型创建会话ID
 def get_session_id(event):
@@ -214,5 +209,5 @@ def get_session_id(event):
 
 def checklen(text): # 检查对话长度
     while (getlength(text) > max_length):
-        del text[0]
+        del text[1]
     return text
