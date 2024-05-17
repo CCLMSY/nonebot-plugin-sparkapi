@@ -22,7 +22,7 @@ __plugin_meta__ = PluginMetadata(
     type='application',
     homepage="https://github.com/CCLMSY/nonebot-plugin-sparkapi",
     config=Config,
-    supported_adapters={"~onebot.v11 + ~websockets"},
+    supported_adapters={"~onebot.v11"},
     extra = {
         "author": "CCLMSY",
         "version": "1.0.5"
