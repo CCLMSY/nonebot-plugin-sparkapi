@@ -17,12 +17,18 @@ class Config(BaseModel):
     sparkapi_group_at: bool = True # 群聊回复时是否需要@提问者
     sparkapi_fnotice:bool = True # 收到请求时是否提示已收到请求
 
-    sparkapi_priority: int = 90 # 事件响应器优先级，[1,99]，数字越小优先级越高
+    sparkapi_priority: int = 90 # 聊天事件响应器优先级，[1,99]，数字越小优先级越高
     sparkpai_max_length: int = 8000 # 单次上下文最大长度 越大，对话历史记录保留越长，消耗token上限越高
 
     sparkapi_setpreset_clear: bool = True # 切换人物预设时是否清空上下文
 
     sparkapi_bot_name: str = "" # 机器人名字
 
-class ConfigError(Exception):
-    pass
+commands = {
+    "help" : "help", # 显示帮助信息
+    "showpresets" : "showpresets", # 显示人物预设
+    "setpreset" : "setpreset", # 更改人物预设
+    "clear" : "clear", # 清空对话
+    "savesession" : "savesession", # 保存对话记录
+    "loadsession" : "loadsession"  # 加载对话记录
+}

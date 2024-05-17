@@ -7,13 +7,13 @@ from nonebot.rule import to_me
 from nonebot.params import ArgPlainText
 
 import nonebot
-import asyncio
 from copy import deepcopy
 
-from .config import Config, ConfigError
+from .config import Config, commands
 from . import SparkApi,funcs
-from .funcs import gethash,getlength,appendText,save_session,load_session
-from .data import presets, presets_lst, help_info, commands
+from .funcs import gethash,appendText,get_session_id,checklen
+from .slsessions import save_session,load_session
+from .data import presets, presets_lst, help_info
 
 __plugin_meta__ = PluginMetadata(
     name="科大讯飞星火大语言模型官方API聊天机器人插件",
@@ -45,7 +45,6 @@ domain = funcs.get_domain(model_version)
 
 command_chat = conf.sparkapi_command_chat
 private_chat = conf.sparkapi_private_chat
-group_public = conf.sparkapi_group_public
 group_at = conf.sparkapi_group_at
 fnotice = conf.sparkapi_fnotice
 setpreset_clear = conf.sparkapi_setpreset_clear
@@ -197,17 +196,3 @@ async def request(history, sid, pname):
     SparkApi.answer = ""
     await SparkApi.main(appid,api_key,api_secret,Spark_url,domain,history,sid)
     return SparkApi.answer
-
-# 根据消息类型创建会话ID
-def get_session_id(event):
-    if isinstance(event, PrivateMessageEvent):
-        return "private_" + str(event.user_id)
-    if group_public:
-        return event.get_session_id().replace(str(event.user_id), "public")
-    else:
-        return event.get_session_id()
-
-def checklen(text): # 检查对话长度
-    while (getlength(text) > max_length):
-        del text[1]
-    return text

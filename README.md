@@ -104,7 +104,7 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 | SPARKAPI_GROUP_PUBLIC | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
 | SPARKAPI_GROUP_AT | 否 | True | 群聊回复消息时是否需要@提问者 |
 | SPARKAPI_FNOTICE | 否 | True | 收到请求时是否提示“已收到请求” |
-| SPARKAPI_PRIORITY | 否 | 90 | 事件响应器优先级，[1,99]，数字越小优先级越高 |
+| SPARKAPI_PRIORITY | 否 | 90 | 聊天事件响应器优先级，[1,99]，数字越小优先级越高 |
 | SPARKPAI_MAX_LENGTH | 否 | 8000 | 上下文最大长度，[1,8000]<br>单次发送和回复的消息不能超过该项的一半 |
 | SPARKAPI_SETPRESET_CLEAR | 否 | True | 切换人物预设时是否清除当前对话上下文 |
 | SPARKAPI_BOT_NAME | 否 | "" | 机器人的名字 |
@@ -112,7 +112,7 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 
 ## 🎉 使用
 ### 指令表
-所有指令均可在data.py中修改，且无需重写菜单/指令生成函数
+所有指令均可在config.py中修改，且无需重写菜单/指令生成函数
 
 | 指令 | 需要@ | 范围 | 说明 |
 |:-----:|:----:|:----:|:----:|

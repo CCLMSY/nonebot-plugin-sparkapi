@@ -1,3 +1,4 @@
+#type: ignore
 from datetime import datetime
 from time import mktime
 from wsgiref.handlers import format_date_time
@@ -7,10 +8,8 @@ import hmac
 import hashlib
 import base64
 
-import asyncio
 import json
 import websockets
-import ssl
 
 from .config import Config
 from nonebot import get_driver

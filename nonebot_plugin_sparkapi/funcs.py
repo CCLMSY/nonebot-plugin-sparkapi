@@ -1,5 +1,14 @@
 import hashlib
 
+from nonebot.adapters.onebot.v11 import PrivateMessageEvent
+
+from .config import Config
+from nonebot import get_driver
+conf = Config.parse_obj(get_driver().config.dict())
+
+group_public = conf.sparkapi_group_public
+max_length = conf.sparkpai_max_length
+
 def unify_model_version(model_version : str):
     version : str
     if model_version in ["v3.5","3.5","","default"]:
@@ -53,32 +62,16 @@ def getlength(text): # 获取对话长度
         length += leng
     return length
 
-import pickle
-from pathlib import Path
-
-def save_obj(obj, name, path):
-    if not path.exists():
-        path.mkdir(parents=True)
-    with open(path / (name + '.pkl'), 'wb') as f:
-        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-
-def load_obj(name, path):
-    try:
-        with open(path / (name + '.pkl'), 'rb') as f:
-            return pickle.load(f)
-    except:
-        return None
-
-PATH = Path(".") / "SparkApi"
-SESSION_PATH = PATH / "sessions"
-
-def save_session(session, pname, session_id):
-    pack = {"session": session, "pname": pname}
-    save_obj(pack, session_id, SESSION_PATH)
-
-def load_session(session_id):
-    pack = load_obj(session_id, SESSION_PATH)
-    if pack:
-        return pack["session"], pack["pname"]
+# 根据消息类型创建会话ID
+def get_session_id(event):
+    if isinstance(event, PrivateMessageEvent):
+        return "private_" + str(event.user_id)
+    if group_public:
+        return event.get_session_id().replace(str(event.user_id), "public")
     else:
-        return None, None
+        return event.get_session_id()
+    
+def checklen(text): # 修理对话长度
+    while (getlength(text) > max_length):
+        del text[1]
+    return text
