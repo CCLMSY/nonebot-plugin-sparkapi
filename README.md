@@ -30,15 +30,12 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 - [x] 支持AI对话
 - [x] 支持上下文关联记忆（可设置记忆文本长度）
 - [x] 用户鉴别（每个用户的历史记录独立）
-- [x] 支持使用、切换人物预设（prompt）
-- [x] 人物预设菜单自动生成，更改无需重写
-- [x] 功能菜单自动生成，更改无需重写
+- [x] 支持用户自定义、更改、切换预设（prompt）
+- [x] 自动生成人物预设菜单、帮助列表，无需重写
+- [x] 基于pickle的历史记录持久化
 - [x] 完善的配置项（有其他需求请发issue）
-- [x] 历史记录持久化
-- [ ] 实用功能列表（查天气、查快递等）
 - [ ] 用户权限与功能区分（超级用户、普通用户）
-- [ ] 支持星火助手API
-- [ ] 支持用户自定义、更改预设
+- [ ] 支持图片生成（ImageGeneration）
 
 ### 📦 项目地址
 - Github：https://github.com/CCLMSY/nonebot-plugin-sparkapi 
@@ -99,31 +96,38 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 | SPARKAPI_MODEL_VERSION | 否 | "" | 星火大模型的版本，默认为当前最新。<br>可选值：v3.5, v3.0, v2.0, v1.5 |
 | SPARKAPI_MODEL_TOP_K | 否 | 4 | 平衡生成文本的质量和多样性。<br>较小的 k 值会减少随机性，使得输出更加稳定；<br>而较大的 k 值会增加随机性，产生更多新颖的输出。<br>取值范围[1, 6] |
 | SPARKAPI_MODEL_TEMPERATURE | 否 | 0.5 | 控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。<br>取值范围 (0，1] |
-| SPARKAPI_COMMAND_CHAT | 否 | "" | 机器人对话指令，默认为空可直接对话<br>（需要同时在`.env`中配置命令起始字符为空<br>COMMAND_START = [""]） |
-| SPARKAPI_PRIVATE_CHAT | 否 | True | 是否允许私聊使用 |
-| SPARKAPI_GROUP_PUBLIC | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
-| SPARKAPI_GROUP_AT | 否 | True | 群聊回复消息时是否需要@提问者 |
-| SPARKAPI_FNOTICE | 否 | True | 收到请求时是否提示“已收到请求” |
-| SPARKAPI_PRIORITY | 否 | 90 | 聊天事件响应器优先级，[1,99]，数字越小优先级越高 |
-| SPARKPAI_MAX_LENGTH | 否 | 8000 | 上下文最大长度，[1,8000]<br>单次发送和回复的消息不能超过该项的一半 |
-| SPARKAPI_SETPRESET_CLEAR | 否 | True | 切换人物预设时是否清除当前对话上下文 |
+| SPARKAPI_MODEL_MAXKLENGTH | 否 | 8000 | 上下文最大长度，[1,8000]<br>单次发送和回复的消息不能超过该项的一半 |
+| SPARKAPI_PRIORITY | 否 | 80 | 该值越小，事件越先被触发。本插件建议设置较大的值。可选值：1~97<br>若触发本插件事件，所有插件中优先级大于此值的事件都将被阻断。<br>本插件中事件的优先级顺序：私聊阻断（=priority）< 功能（=priority+1）< 对话（=priority+2） |
+| SPARKAPI_COMMANDS__CHAT | 否 | "" | 机器人对话指令，默认为空可直接对话<br>（需要同时在`.env`中配置命令起始字符为空：COMMAND_START = [""]） |
+| SPARKAPI_FL_NOTICE | 否 | True | 收到请求时是否提示“已收到请求” |
+| SPARKAPI_FL_SETPRESET_CLEAR | 否 | True | 切换人物预设时是否清除当前对话上下文 |
+| SPARKAPI_FL_PRIVATE_CHAT | 否 | True | 是否允许私聊使用 |
+| SPARKAPI_FL_GROUP_PUBLIC | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
+| SPARKAPI_FL_GROUP_AT | 否 | True | 群聊回复消息时是否需要@提问者 |
 | SPARKAPI_BOT_NAME | 否 | "" | 机器人的名字 |
 
+以下配置项请查看`/.venv/Lib/nonebot_plugin_sparkapi/config.py`修改：
+1. sparkapi_commands：指令表（允许单个字符串或字符串列表）
+2. sparkapi_commands_info：指令表说明（用于生成帮助信息）
+3. sparkapi_message_blockprivate：阻断私聊时的提示信息
 
 ## 🎉 使用
-### 指令表
-所有指令均可在config.py中修改，且无需重写菜单/指令生成函数
+### 指令表（默认）
+以下所有指令均可在config.py中修改，且无需重写菜单/指令生成函数
 
 | 指令 | 需要@ | 范围 | 说明 |
 |:-----:|:----:|:----:|:----:|
 | SPARKAPI_COMMAND_CHAT（若不为空） + 对话内容 | 是 | 私聊/群聊 | 与机器人进行对话 |
-| help | 是 | 私聊/群聊 | 查看帮助信息 |
-| presets | 是 | 私聊/群聊 | 查看当前可选的人物预设 |
-| set | 是 | 私聊/群聊 | 查看当前可选的人物预设<br>回复编号以进行切换 |
-| set + 人物预设编号 | 是 | 私聊/群聊 | 切换到编号对应的人物预设 |
-| save | 是 | 私聊/群聊 | 保存当前对话上下文 |
-| load | 是 | 私聊/群聊 | 加载之前保存的对话上下文 |
-| clear | 是 | 私聊/群聊 | 清除当前对话上下文 |
+| help/帮助 | 是 | 私聊/群聊 | 显示帮助信息 |
+| preset/人物预设 | 是 | 私聊/群聊 | 显示人物预设菜单和当前预设 |
+| set/切换预设 | 是 | 私聊/群聊 | 显示人物预设菜单，选择并切换 |
+| set/切换预设 + 人物名 | 是 | 私聊/群聊 | 切换人物预设 |
+| create/创建预设 | 是 | 私聊/群聊 | 创建自定义的人物预设 |
+| delete/删除预设 | 是 | 私聊/群聊 | 删除自定义的人物预设 |
+| delete/删除预设 + 人物名 | 是 | 私聊/群聊 | 显示自定义人物预设菜单, 选择并删除 |
+| clear/清空对话 | 是 | 私聊/群聊 | 清除当前对话上下文 |
+| save/保存对话 | 是 | 私聊/群聊 | 保存当前对话记录 |
+| load/加载对话 | 是 | 私聊/群聊 | 加载上次保存的对话记录 |
 
 ### 人物预设
 1. 智能助手（默认）

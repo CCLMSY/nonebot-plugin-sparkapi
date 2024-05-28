@@ -7,18 +7,15 @@ from urllib.parse import urlparse, urlencode
 import hmac
 import hashlib
 import base64
-
 import json
 import websockets
 
 from .config import Config
-from nonebot import get_driver
-
-conf = Config.parse_obj(get_driver().config.dict())
-
+from nonebot import get_plugin_config
+conf = get_plugin_config(Config)
 model_top_k = conf.sparkapi_model_top_k
 model_temperature = conf.sparkapi_model_temperature
-max_length = conf.sparkpai_max_length
+maxlength = conf.sparkpai_model_maxlength
 
 answer = ""
 
@@ -64,7 +61,6 @@ class Ws_Param(object):
         # print("APISecret: " + self.APISecret)
         # print("signature_origin: " + signature_origin)
         # print(url)
-        # 此处打印出建立连接时候的url,参考本demo的时候可取消上方打印的注释，比对相同参数时生成的url与自己代码生成的url是否一致
         return url
 
 # 收到websockets消息的处理
@@ -92,9 +88,6 @@ async def on_message(ws, message):
 async def connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid):
     wsParam = Ws_Param(appid, api_key, api_secret, Spark_url)
     ws_url = wsParam.create_url()
-    # ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    # ssl_context.check_hostname = False
-    # ssl_context.verify_mode = ssl.CERT_NONE
 
     async with websockets.connect(ws_url) as ws:
         ws.appid = appid
@@ -115,7 +108,7 @@ def gen_params(appid, domain, question):
             "chat": {
                 "domain": domain,
                 "temperature": model_temperature,
-                "max_tokens": max_length // 2,
+                "max_tokens": maxlength // 2,
                 "top_k": model_top_k,
                 "auditing": "default"
             }
