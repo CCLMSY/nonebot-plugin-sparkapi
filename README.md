@@ -105,12 +105,14 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 | SPARKAPI_FL_PRIVATE_CHAT | 否 | True | 是否允许私聊使用 |
 | SPARKAPI_FL_GROUP_PUBLIC | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
 | SPARKAPI_FL_GROUP_AT | 否 | True | 群聊回复消息时是否需要@提问者 |
+| SPARKAPI_FL_IMGGEN | 否 | True | 是否启用AI绘图功能 |
 | SPARKAPI_BOT_NAME | 否 | "" | 机器人的名字 |
 
 以下配置项请查看`/.venv/Lib/nonebot_plugin_sparkapi/config.py`修改：
 1. sparkapi_commands：指令表（允许单个字符串或字符串列表）
 2. sparkapi_commands_info：指令表说明（用于生成帮助信息）
 3. sparkapi_message_blockprivate：阻断私聊时的提示信息
+4. sparkapi_message_blockimggen：阻断AI绘图时的提示信息
 
 ## 🎉 使用
 ### 指令表（默认）
@@ -121,14 +123,16 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 | SPARKAPI_COMMAND_CHAT（若不为空） + 对话内容 | 是 | 私聊/群聊 | 与机器人进行对话 |
 | help/帮助 | 是 | 私聊/群聊 | 显示帮助信息 |
 | preset/人物预设 | 是 | 私聊/群聊 | 显示人物预设菜单和当前预设 |
-| set/切换预设 | 是 | 私聊/群聊 | 显示人物预设菜单，选择并切换 |
+| set/切换预设 | 是 | 私聊/群聊 | 显示人物预设菜单，选择人物预设并切换 |
 | set/切换预设 + 人物名 | 是 | 私聊/群聊 | 切换人物预设 |
 | create/创建预设 | 是 | 私聊/群聊 | 创建自定义的人物预设 |
 | delete/删除预设 | 是 | 私聊/群聊 | 删除自定义的人物预设 |
-| delete/删除预设 + 人物名 | 是 | 私聊/群聊 | 显示自定义人物预设菜单, 选择并删除 |
+| delete/删除预设 + 人物名 | 是 | 私聊/群聊 | 显示自定义人物预设菜单, 选择人物预设并删除 |
 | clear/清空对话 | 是 | 私聊/群聊 | 清除当前对话上下文 |
 | save/保存对话 | 是 | 私聊/群聊 | 保存当前对话记录 |
 | load/加载对话 | 是 | 私聊/群聊 | 加载上次保存的对话记录 |
+| imggen/AI绘图 + 描述 | 是 | 私聊/群聊 | AI根据描述生成图片 |
+| imggen/AI绘图 | 是 | 私聊/群聊 | 下一句给出描述，AI根据描述生成图片 |
 
 ### 人物预设
 1. 智能助手（默认）
