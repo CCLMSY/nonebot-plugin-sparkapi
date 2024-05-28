@@ -30,12 +30,13 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 - [x] 支持AI对话
 - [x] 支持上下文关联记忆（可设置记忆文本长度）
 - [x] 用户鉴别（每个用户的历史记录独立）
-- [x] 支持用户自定义、更改、切换预设（prompt）
+- [x] 支持用户自定义、更改、切换预设（Prompt）
 - [x] 自动生成人物预设菜单、帮助列表，无需重写
 - [x] 基于pickle的历史记录持久化
 - [x] 完善的配置项（有其他需求请发issue）
+- [x] 支持AI绘图（AI Image Generation）
 - [ ] 用户权限与功能区分（超级用户、普通用户）
-- [ ] 支持图片生成（ImageGeneration）
+- [ ] PPT生成（PPT Generation）
 
 ### 📦 项目地址
 - Github：https://github.com/CCLMSY/nonebot-plugin-sparkapi 
@@ -132,6 +133,7 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 ### 人物预设
 1. 智能助手（默认）
 2. 心理咨询师
+3. 李白
 
 ### 效果图
 ![demo](https://github.com/CCLMSY/nonebot-plugin-sparkapi/blob/resources/demo.jpg)

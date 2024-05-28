@@ -32,10 +32,10 @@ presets_default = { #
         'role': 'system',
         'content': prompt_psychological_counselor
     },
-    # "李白":{
-    #     'role': 'system',
-    #     'content': prompt_libai
-    # }
+    "李白":{
+        'role': 'system',
+        'content': prompt_libai
+    }
 }
 
 # 生成人物预设列表

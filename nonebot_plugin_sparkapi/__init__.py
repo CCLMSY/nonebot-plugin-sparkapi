@@ -5,13 +5,13 @@ import nonebot
 from nonebot.plugin import PluginMetadata
 from nonebot.plugin.on import on_message
 from nonebot.params import CommandArg
-from nonebot.rule import Rule,to_me,is_type
+from nonebot.rule import to_me,is_type,command
 from nonebot.params import ArgPlainText
 # from nonebot.permission import SUPERUSER
 
 from copy import deepcopy
 
-from . import SparkApi,funcs,info,storage
+from . import SparkApi,ImgGenApi,funcs,info,storage
 from .config import Config
 
 # ---------------------------Configurations---------------------------
@@ -42,14 +42,11 @@ priority_blockprivate = conf.sparkapi_priority
 priority_function = priority_blockprivate + 1
 priority_chat = priority_blockprivate + 2
 
-# if not appid or not api_secret or not api_key:
-#     raise ConfigError("请设置API信息,可前往 https://console.xfyun.cn/ 获取")
-
 commands = conf.sparkapi_commands
-fl_private_chat = conf.sparkapi_fl_private_chat
 fl_group_at = conf.sparkapi_fl_group_at
 fl_notice = conf.sparkapi_fl_notice
 fl_setpreset_clear = conf.sparkapi_fl_setpreset_clear
+fl_imggen = conf.sparkapi_fl_imggen
 maxlength = conf.sparkpai_model_maxlength
 priority = conf.sparkapi_priority
 
@@ -57,10 +54,10 @@ sessions = {} # 会话记录
 spname = {} # 选取的prompt
 presets = {} # 人物预设列表
 
+# if not appid or not api_secret or not api_key:
+#     raise ConfigError("请设置API信息,可前往 https://console.xfyun.cn/ 获取")
+
 # ---------------------------Tests---------------------------
-# print(unify_commands(commands["chat"]))
-# print(unify_commands(commands["help"]))
-# print(*unify_commands(commands["help"]))
 
 # ---------------------------Matchers---------------------------
 # 事件响应器：私聊阻断
@@ -72,6 +69,7 @@ matcher_blockprivate = on_message(
     priority = priority_blockprivate,
     block = True
 )
+
 @matcher_blockprivate.handle()
 async def blockprivate_handle_function():
     await matcher_blockprivate.finish(MS.text(conf.sparkapi_message_blockprivate))
@@ -84,6 +82,7 @@ matcher_chat = on_message(
     priority = priority_chat,
     block = True
 )
+
 @matcher_chat.handle()
 async def chat_handle_function(event: ME, msg: Message = CommandArg()):
     content = msg.extract_plain_text().strip()
@@ -136,6 +135,7 @@ matcher_help = on_message(
     priority = priority_function,
     block = True
 )
+
 @matcher_help.handle()
 async def sparkhelp_handle_function():
     await matcher_help.finish(MS.text(info.help_info))
@@ -148,12 +148,14 @@ matcher_preset_create = on_message(
     priority = priority_function,
     block=True
 )
+
 @matcher_preset_create.got("pname",prompt="请输入预设名称\n回复“取消”退出")
 async def preset_create_got_check(event: ME, pname: str= ArgPlainText()):
     if pname=="取消":
         await matcher_preset_create.finish(MS.text("操作已取消"))
 
     session_id = funcs.get_session_id(event)
+    
     check = storage.f_preset_check(pname, session_id) or (pname in info.presets_default)
     if check:
         await matcher_preset_create.finish(MS.text(f'已存在名为"{pname}"的预设'))
@@ -186,6 +188,7 @@ matcher_preset_delete = on_message(
     priority = priority_function,
     block = True
 )
+
 @matcher_preset_delete.handle()
 async def preset_delete_handle_function(event: ME, msg: Message = CommandArg()):
     pname = msg.extract_plain_text().strip()
@@ -203,9 +206,9 @@ async def preset_delete_handle_function(event: ME, msg: Message = CommandArg()):
     if pname:
         await preset_delete_function(event, pname)
         
-    msg = info.get_preset_lst({},custom_presets)
-    msg = msg+"\n请输入名称以删除人物预设，回复“取消”退出"
-    await matcher_preset_delete.send(MS.text(msg))
+    ret = info.get_preset_lst({},custom_presets)
+    ret = ret+"\n请输入名称以删除人物预设，回复“取消”退出"
+    await matcher_preset_delete.send(MS.text(ret))
 
 @matcher_preset_delete.got("pname")
 async def preset_delete_got_function(event: ME, pname: str = ArgPlainText()):
@@ -235,6 +238,7 @@ matcher_preset_show = on_message(
     priority = priority_function,
     block = True
 )
+
 @matcher_preset_show.handle()
 async def preset_show_handle_function(event:ME):
     session_id = funcs.get_session_id(event)
@@ -252,6 +256,7 @@ matcher_preset_set = on_message(
     priority=priority_function,
     block=True
 )
+
 @matcher_preset_set.handle()
 async def preset_set_handle_function(event: ME, msg: Message = CommandArg()):
     pname = msg.extract_plain_text().strip()
@@ -266,9 +271,9 @@ async def preset_set_handle_function(event: ME, msg: Message = CommandArg()):
     if pname:
         await preset_set_function(event, pname)
 
-    msg = info.get_preset_lst(info.presets_default,custom_presets)
-    msg = msg+"\n请输入名称以选择人物预设，回复“取消”退出"
-    await matcher_preset_set.send(MS.text(msg))
+    ret = info.get_preset_lst(info.presets_default,custom_presets)
+    ret = ret+"\n请输入名称以选择人物预设，回复“取消”退出"
+    await matcher_preset_set.send(MS.text(ret))
 
 @matcher_preset_set.got("pname")
 async def preset_set_got_function(event: ME, pname: str = ArgPlainText()):
@@ -320,6 +325,7 @@ matcher_session_clear = on_message(
     priority=priority_function,
     block=True
 )
+
 @matcher_session_clear.handle()
 async def session_clear_handle_function(event: ME):
     session_id = funcs.get_session_id(event)
@@ -339,6 +345,7 @@ matcher_session_save = on_message(
     priority=priority_function,
     block=True
 )
+
 @matcher_session_save.handle()
 async def session_save_handle_function(event: ME):
     session_id = funcs.get_session_id(event)
@@ -357,6 +364,7 @@ matcher_session_load = on_message(
     priority=priority_function,
     block=True
 )
+
 @matcher_session_load.handle()
 async def session_load_handle_function(event: ME):
     session_id = funcs.get_session_id(event)
@@ -368,6 +376,43 @@ async def session_load_handle_function(event: ME):
         await matcher_session_load.finish(MS.text("已加载上次保存的对话记录！"))
     else:
         await matcher_session_load.finish(MS.text("未保存对话记录"))
+
+
+# 事件响应器：AI绘图
+rule_imggen = to_me() & funcs.trans_command(commands["image_generation"])
+matcher_imggen = on_message(
+    rule = rule_imggen,
+    priority = priority_function,
+    block = True
+)
+
+@matcher_imggen.handle()
+async def imggen_handle_function(event: ME, msg: Message = CommandArg()):
+    if not fl_imggen:
+        await matcher_imggen.finish(MS.text(conf.sparkapi_message_blockimggen))
+    
+    content = msg.extract_plain_text().strip()
+    session_id = funcs.get_session_id(event)
+
+    if content : 
+        if len(content) > maxlength:
+            await matcher_imggen.finish(MS.text(f"输入文字过长：请不要超过{maxlength}字节！"))
+        ret = await request_IG(content)
+        path = storage.f_image_base64_save(ret, f"{session_id}.png")
+        await matcher_imggen.finish(MS.image(path))
+
+@matcher_imggen.got("content",prompt="请输入文字描述\n回复“取消”退出")
+async def imggen_got_function(event: ME, content: str = ArgPlainText()):
+    if content=="取消":
+        await matcher_imggen.finish(MS.text("操作已取消"))
+    if len(content) > maxlength:
+        await matcher_imggen.finish(MS.text(f"输入文字过长：请不要超过{maxlength}字节！"))
+    
+    session_id = funcs.get_session_id(event)
+
+    ret = await request_IG(content)
+    path = storage.f_image_base64_save(ret, f"{session_id}.png")
+    await matcher_imggen.finish(MS.image(path))
 
 
 # ---------------------------API Request---------------------------
@@ -383,3 +428,12 @@ async def request(history, sid, session_id, pname):
     SparkApi.answer = ""
     await SparkApi.main(appid,api_key,api_secret,Spark_url,domain,history,sid)
     return SparkApi.answer
+
+IG_url = "http://spark-api.cn-huabei-1.xf-yun.com/v2.1/tti"
+IG_domain = "general"
+
+async def request_IG(content):
+    ImgGenApi.res = ""
+    ImgGenApi.duration = 0
+    await ImgGenApi.main(appid,api_key,api_secret,IG_url,IG_domain,content)
+    return ImgGenApi.res

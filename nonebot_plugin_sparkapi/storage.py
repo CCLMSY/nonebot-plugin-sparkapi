@@ -2,6 +2,10 @@ import pickle
 from pathlib import Path
 from .funcs import trans_preset
 
+from PIL import Image
+from io import BytesIO
+import base64
+
 PATH = Path(".") / "SparkApi"
 
 def save_obj(obj, name, path):
@@ -62,3 +66,13 @@ def f_preset_check(pname, session_id):
     else:
         return False
 
+IMAGE_PATH = PATH / "images"
+
+# 将base64图片数据保存到本地
+def f_image_base64_save(base64_data, filename):
+    if not IMAGE_PATH.exists():
+        IMAGE_PATH.mkdir(parents=True)
+    img_data = base64.b64decode(base64_data) # base64解码
+    img = Image.open(BytesIO(img_data)) # 读取图片
+    img.save(IMAGE_PATH / filename) # 保存图片
+    return IMAGE_PATH / filename
