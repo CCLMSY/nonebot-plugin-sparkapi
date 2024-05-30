@@ -29,6 +29,7 @@ class Config(BaseModel):
         "session_save" : ["save","保存对话"], # 保存对话记录
         "session_load" : ["load","加载对话"],  # 加载对话记录
         "image_generation" : ["imggen","AI绘图"],  # AI绘图
+        "ppt_generation" : ["pptgen","AIPPT",],  # AI制作PPT
     }
     sparkapi_commands_info: dict[str, str] = { # 命令说明，用于生成帮助信息
         "chat" : "与机器人进行对话",
@@ -41,10 +42,11 @@ class Config(BaseModel):
         "session_save" : "保存本次对话记录",
         "session_load" : "加载上次保存的对话记录",
         "image_generation" : "AI根据文字描述绘制一张图片",
+        "ppt_generation" : "AI根据文字描述制作PPT",
     }
 
     # 聊天设置
-    sparkapi_fl_notice: bool = True # 收到请求时是否提示已收到请求
+    sparkapi_fl_notice: bool = False # 收到请求时是否提示已收到请求
     sparkapi_fl_setpreset_clear: bool = True # 切换人物预设时是否清空上下文
 
     # 私聊设置
@@ -55,9 +57,9 @@ class Config(BaseModel):
     sparkapi_fl_group_public: bool = False # 群聊启用公共会话：True：所有人共享同一会话；False：每个人的会话各自独立
     sparkapi_fl_group_at: bool = True # 群聊中，回复时是否需要@提问者
     
-    # 图片生成功能，API信息一般与AI对话API一致
-    sparkapi_fl_imggen : bool = True # 启用图片生成功能
-    sparkapi_message_blockimggen : str = "图片生成功能已关闭！如有需要，请联系管理员。" # 阻断图片生成功能时的提示信息
+    # 扩展功能
+    sparkapi_fl_imggen : bool = False # 启用图片生成功能，需要申请独立用量，API信息一般与AI对话API一致
+    sparkapi_fl_pptgen : bool = False # 启用PPT生成功能，需要申请独立用量，API信息一般与AI对话API一致
 
     # 机器人名字
     sparkapi_bot_name: str = "" # 机器人名字

@@ -105,7 +105,6 @@ async def connect_hs(appid, api_key, api_secret, IG_url, domain, content):
         response = await client.post(url, json=params, headers={'content-type': "application/json"})
         ed = asyncio.get_event_loop().time()
         parse_response(response.json())
-        global duration
         print(f"Time Consumed: {ed-st:.2f}s")
     return res
 

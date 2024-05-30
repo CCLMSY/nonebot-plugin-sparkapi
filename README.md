@@ -35,11 +35,14 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 - [x] 基于pickle的历史记录持久化
 - [x] 完善的配置项（有其他需求请发issue）
 - [x] 支持AI绘图（AI Image Generation）
+- [x] 支持AI生成PPT（PPT Generation）
 - [ ] 用户权限与功能区分（超级用户、普通用户）
-- [ ] PPT生成（PPT Generation）
+- [ ] 用户画像（记录用户信息以便提供更精确的内容）（目前存争议，考虑允许用户自行设置）
 
 ### 📦 项目地址
 - Github：https://github.com/CCLMSY/nonebot-plugin-sparkapi 
+- Pypi：https://pypi.org/project/nonebot-plugin-sparkapi/
+- Nonebot：https://registry.nonebot.dev/plugin/nonebot-plugin-sparkapi:nonebot_plugin_sparkapi
 - 觉得好用的话，请给个 Star⭐️ 谢谢喵~ 
 
 ## 💿 安装
@@ -105,14 +108,14 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 | SPARKAPI_FL_PRIVATE_CHAT | 否 | True | 是否允许私聊使用 |
 | SPARKAPI_FL_GROUP_PUBLIC | 否 | False | 群聊启用公共会话<br>True：所有人共享同一会话<br>False：每个人的会话各自独立 |
 | SPARKAPI_FL_GROUP_AT | 否 | True | 群聊回复消息时是否需要@提问者 |
-| SPARKAPI_FL_IMGGEN | 否 | True | 是否启用AI绘图功能 |
+| SPARKAPI_FL_IMGGEN | 否 | False | 是否启用AI绘图功能 |
+| SPARKAPI_FL_PPTGEN | 否 | False | 是否启用AI生成PPT功能 |
 | SPARKAPI_BOT_NAME | 否 | "" | 机器人的名字 |
 
 以下配置项请查看`/.venv/Lib/nonebot_plugin_sparkapi/config.py`修改：
 1. sparkapi_commands：指令表（允许单个字符串或字符串列表）
 2. sparkapi_commands_info：指令表说明（用于生成帮助信息）
 3. sparkapi_message_blockprivate：阻断私聊时的提示信息
-4. sparkapi_message_blockimggen：阻断AI绘图时的提示信息
 
 ## 🎉 使用
 ### 指令表（默认）

@@ -55,13 +55,30 @@ def get_help_info(commands:dict,commands_info:dict)->str:
     def unify_command(command_info:list)->str:
         ret = "/".join(command_info)
         return ret
+    
     help_info = "【帮助信息】\n"
     command_chat = unify_command(commands["chat"])
-    help_info += f"1. {command_chat+'+' if command_chat else '直接发送'}对话内容：与机器人进行对话\n"
-    for i, (command, command_info) in enumerate(commands_info.items(), start=1):
-        if command == "chat":
+    help_info += f"1. {command_chat+'+' if command_chat else '直接发送'}对话内容：{commands_info['chat']}\n"
+    i = 2
+    special_commands = ["chat", "image_generation", "ppt_generation"]
+
+    for command, command_info in commands_info.items():
+        if command in special_commands:
             continue
         command = unify_command(commands[command])
         help_info += f"{i}. {command}：{command_info}\n"
+        i += 1
+
+    if conf.sparkapi_fl_imggen:
+        command_imggen = unify_command(commands["image_generation"])
+        help_info += f"{i}. {command_imggen}：{commands_info['image_generation']}\n"
+        i += 1
+
+    if conf.sparkapi_fl_pptgen:
+        command_pptgen = unify_command(commands["ppt_generation"])
+        help_info += f"{i}. {command_pptgen}：{commands_info['ppt_generation']}\n"
+        i += 1
+
     return help_info
+
 help_info = get_help_info(commands,commands_info)

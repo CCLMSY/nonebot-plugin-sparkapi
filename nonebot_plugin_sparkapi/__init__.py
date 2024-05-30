@@ -5,13 +5,13 @@ import nonebot
 from nonebot.plugin import PluginMetadata
 from nonebot.plugin.on import on_message
 from nonebot.params import CommandArg
-from nonebot.rule import to_me,is_type,command
+from nonebot.rule import to_me,is_type
 from nonebot.params import ArgPlainText
 # from nonebot.permission import SUPERUSER
 
 from copy import deepcopy
 
-from . import SparkApi,ImgGenApi,funcs,info,storage
+from . import SparkApi,ImgGenApi,PPTGenApi,funcs,info,storage
 from .config import Config
 
 # ---------------------------Configurations---------------------------
@@ -46,7 +46,6 @@ commands = conf.sparkapi_commands
 fl_group_at = conf.sparkapi_fl_group_at
 fl_notice = conf.sparkapi_fl_notice
 fl_setpreset_clear = conf.sparkapi_fl_setpreset_clear
-fl_imggen = conf.sparkapi_fl_imggen
 maxlength = conf.sparkpai_model_maxlength
 priority = conf.sparkapi_priority
 
@@ -58,6 +57,8 @@ presets = {} # 人物预设列表
 #     raise ConfigError("请设置API信息,可前往 https://console.xfyun.cn/ 获取")
 
 # ---------------------------Tests---------------------------
+
+
 
 # ---------------------------Matchers---------------------------
 # 事件响应器：私聊阻断
@@ -379,7 +380,9 @@ async def session_load_handle_function(event: ME):
 
 
 # 事件响应器：AI绘图
-rule_imggen = to_me() & funcs.trans_command(commands["image_generation"])
+async def fl_imggen() -> bool:
+    return conf.sparkapi_fl_imggen
+rule_imggen = to_me() & funcs.trans_command(commands["image_generation"]) & fl_imggen
 matcher_imggen = on_message(
     rule = rule_imggen,
     priority = priority_function,
@@ -388,9 +391,6 @@ matcher_imggen = on_message(
 
 @matcher_imggen.handle()
 async def imggen_handle_function(event: ME, msg: Message = CommandArg()):
-    if not fl_imggen:
-        await matcher_imggen.finish(MS.text(conf.sparkapi_message_blockimggen))
-    
     content = msg.extract_plain_text().strip()
     session_id = funcs.get_session_id(event)
 
@@ -415,6 +415,36 @@ async def imggen_got_function(event: ME, content: str = ArgPlainText()):
     await matcher_imggen.finish(MS.image(path))
 
 
+# 事件响应器：AI生成PPT
+async def fl_pptgen() -> bool:
+    return conf.sparkapi_fl_pptgen
+rule_pptgen = to_me() & funcs.trans_command(commands["ppt_generation"]) & fl_pptgen
+matcher_pptgen = on_message(
+    rule = rule_pptgen,
+    priority = priority_function,
+    block = True
+)
+
+@matcher_pptgen.handle()
+async def pptgen_handle_function(event: ME, msg: Message = CommandArg()):
+    content = msg.extract_plain_text().strip()
+    
+    if content:
+        if len(content) > maxlength:
+            await matcher_pptgen.finish(MS.text(f"输入文字过长：请不要超过{maxlength}字节！"))
+        ret = await request_IP(content)
+        await matcher_pptgen.finish(MS.text("点击链接下载："+ret))
+        
+@matcher_pptgen.got("content",prompt="请输入文字描述\n回复“取消”退出")
+async def pptgen_got_function(event: ME, content: str = ArgPlainText()):
+    if content=="取消":
+        await matcher_pptgen.finish(MS.text("操作已取消"))
+    if len(content) > maxlength:
+        await matcher_pptgen.finish(MS.text(f"输入文字过长：请不要超过{maxlength}字节！"))
+    
+    ret = await request_IP(content)
+    await matcher_pptgen.finish(MS.text("点击链接下载："+ret))
+
 # ---------------------------API Request---------------------------
 model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
@@ -434,6 +464,9 @@ IG_domain = "general"
 
 async def request_IG(content):
     ImgGenApi.res = ""
-    ImgGenApi.duration = 0
     await ImgGenApi.main(appid,api_key,api_secret,IG_url,IG_domain,content)
     return ImgGenApi.res
+
+async def request_IP(content):
+    res = await PPTGenApi.main(appid, api_secret, content)
+    return res
