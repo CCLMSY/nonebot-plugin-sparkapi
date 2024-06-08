@@ -76,3 +76,4 @@ def f_image_base64_save(base64_data, filename):
     img = Image.open(BytesIO(img_data)) # 读取图片
     img.save(IMAGE_PATH / filename) # 保存图片
     return IMAGE_PATH / filename
+

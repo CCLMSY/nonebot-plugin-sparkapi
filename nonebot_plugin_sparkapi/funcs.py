@@ -94,3 +94,4 @@ def trans_preset(prompt: str):
 # 合并两个dict
 def merge_dict(dict1, dict2):
     return {**dict1, **dict2}
+

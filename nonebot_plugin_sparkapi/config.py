@@ -45,7 +45,7 @@ class Config(BaseModel):
         "ppt_generation" : "AI根据文字描述制作PPT",
     }
 
-    # 聊天设置
+    # 聊天设置  
     sparkapi_fl_notice: bool = False # 收到请求时是否提示已收到请求
     sparkapi_fl_setpreset_clear: bool = True # 切换人物预设时是否清空上下文
 
@@ -63,3 +63,4 @@ class Config(BaseModel):
 
     # 机器人名字
     sparkapi_bot_name: str = "" # 机器人名字
+

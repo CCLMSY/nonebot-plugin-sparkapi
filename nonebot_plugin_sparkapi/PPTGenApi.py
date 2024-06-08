@@ -7,7 +7,6 @@ import time
 import httpx
 
 class AIPPT():
-
     def __init__(self, APPId, APISecret, Text):
         self.APPid = APPId
         self.APISecret = APISecret
@@ -85,3 +84,4 @@ async def main(appid, api_secret, content):
 #     api_secret = "Mzc0NzJmOTNjZDRiNzAzNTg4N2RjYjEy"
 #     content = "集团客户部2023年工作总结"
 #     asyncio.run(main(appid, api_secret, content))
+

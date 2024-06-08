@@ -129,3 +129,4 @@ async def main(appid, api_key, api_secret, IG_url, domain, content):
 #     content = input("")
 #     # asyncio.run(main("your_appid", "your_api_key", "your_api_secret", "https://your_ig_url", "your_domain", "your_content"))
 #     save_base64img(res, "test.jpg")
+
