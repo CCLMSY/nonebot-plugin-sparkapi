@@ -43,6 +43,7 @@ priority_function = priority_blockprivate + 1
 priority_chat = priority_blockprivate + 2
 
 commands = conf.sparkapi_commands
+commands["chat"] = conf.sparkapi_command_chat
 fl_group_at = conf.sparkapi_fl_group_at
 fl_notice = conf.sparkapi_fl_notice
 fl_setpreset_clear = conf.sparkapi_fl_setpreset_clear

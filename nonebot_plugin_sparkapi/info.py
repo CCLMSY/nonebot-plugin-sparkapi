@@ -4,6 +4,7 @@ conf = get_plugin_config(Config)
 bot_name = conf.sparkapi_bot_name
 fl_setprset_clear = conf.sparkapi_fl_setpreset_clear
 commands = conf.sparkapi_commands
+commands["chat"] = conf.sparkapi_command_chat
 commands_info = conf.sparkapi_commands_info
 
 

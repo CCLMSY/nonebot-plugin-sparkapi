@@ -18,8 +18,9 @@ class Config(BaseModel):
     sparkapi_priority: int = 80 # 优先级
     
     # 命令设置
+    sparkapi_command_chat = "" # 机器人对话指令（默认：为""且同时在`.env`中配置命令起始字符为空：COMMAND_START = [""]，即可直接对话）
     sparkapi_commands : dict[str, str|list[str]] = { # 命令
-        "chat" : "", # 机器人对话指令（默认：为""且同时在`.env`中配置命令起始字符为空：COMMAND_START = [""]，即可直接对话）
+        "chat" : "", # 本条不生效，仅维持代码一致性
         "help" : ["help","帮助"], # 显示帮助信息
         "preset_show" : ["preset","人物预设"], # 显示人物预设
         "preset_set" : ["set","切换预设"], # 切换人物预设
