@@ -62,6 +62,7 @@ class Config(BaseModel):
     sparkapi_fl_imggen : bool = False # 启用图片生成功能，需要申请独立用量，API信息一般与AI对话API一致
     sparkapi_fl_pptgen : bool = False # 启用PPT生成功能，需要申请独立用量，API信息一般与AI对话API一致
 
-    # 机器人名字
+    # 其他设置
     sparkapi_bot_name: str = "" # 机器人名字
+    # sparkapi_console_notice: bool = True # 控制台是否显示请求和响应交互内容（用于判断连接是否正常）
 

@@ -9,6 +9,7 @@ import hashlib
 import base64
 import json
 import websockets
+import ssl
 
 from .config import Config
 from nonebot import get_plugin_config
@@ -89,7 +90,8 @@ async def connect_ws(appid, api_key, api_secret, Spark_url, domain, question, si
     wsParam = Ws_Param(appid, api_key, api_secret, Spark_url)
     ws_url = wsParam.create_url()
 
-    async with websockets.connect(ws_url) as ws:
+    ssl_context = ssl.create_default_context()
+    async with websockets.connect(ws_url,ssl=ssl_context) as ws:
         ws.appid = appid
         ws.question = question
         ws.domain = domain

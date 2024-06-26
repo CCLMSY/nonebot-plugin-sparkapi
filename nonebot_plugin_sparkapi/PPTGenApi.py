@@ -44,6 +44,7 @@ class AIPPT():
             response = await client.post(url=url, data=json.dumps(body), headers=headers)
             resp = response.json()
             if resp['code'] == 0:
+                print('创建PPT任务成功')
                 return resp['data']['sid']
             else:
                 print('创建PPT任务失败')
@@ -57,6 +58,7 @@ class AIPPT():
         if sid is not None:
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"https://zwapi.xfyun.cn/api/aippt/progress?sid={sid}", headers=self.header)
+                print(f"res:{response.text}")
                 return response.text
         else:
             return None
