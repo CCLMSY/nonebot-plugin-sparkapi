@@ -101,7 +101,7 @@ AI绘图、AI生成PPT功能的API信息一般与对话API信息相同（同一�
 | SPARKAPI_APP_ID | 是 | "" | APPID |
 | SPARKAPI_API_SECRET | 是 | "" | APISecret |
 | SPARKAPI_API_KEY | 是 | "" | APIKey |
-| SPARKAPI_MODEL_VERSION | 否 | "" | 星火大模型的版本，默认为当前最新。<br>可选值：v3.5, v3.0, v2.0, v1.5 |
+| SPARKAPI_MODEL_VERSION | 否 | "" | 星火大模型的版本，默认为当前最新。<br>可选值：v4.0, v3.5, v3.0, v2.0, v1.5 |
 | SPARKAPI_MODEL_TOP_K | 否 | 4 | 平衡生成文本的质量和多样性。<br>较小的 k 值会减少随机性，使得输出更加稳定；<br>而较大的 k 值会增加随机性，产生更多新颖的输出。<br>取值范围[1, 6] |
 | SPARKAPI_MODEL_TEMPERATURE | 否 | 0.5 | 控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。<br>取值范围 (0，1] |
 | SPARKAPI_MODEL_MAXKLENGTH | 否 | 8000 | 上下文最大长度，[1,8000]<br>单次发送和回复的消息不能超过该项的一半 |
