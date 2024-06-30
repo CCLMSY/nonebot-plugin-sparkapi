@@ -87,3 +87,16 @@ async def main(appid, api_secret, content):
 #     content = "集团客户部2023年工作总结"
 #     asyncio.run(main(appid, api_secret, content))
 
+# ---------------------------API Request---------------------------
+from ..config import Config
+from nonebot import get_plugin_config
+conf = get_plugin_config(Config)
+
+appid = conf.sparkapi_app_id
+api_secret = conf.sparkapi_api_secret
+api_key = conf.sparkapi_api_key
+
+
+async def request_IP(content):
+    res = await main(appid, api_secret, content)
+    return res

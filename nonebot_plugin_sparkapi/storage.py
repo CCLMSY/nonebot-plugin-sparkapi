@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from .funcs import trans_preset
+import pandas as pd
 
 from PIL import Image
 from io import BytesIO
@@ -8,21 +8,33 @@ import base64
 
 PATH = Path(".") / "SparkApi"
 
-def save_obj(obj, name, path):
+def check_path(path=PATH):
+    # print(path)
     if not path.exists():
         path.mkdir(parents=True)
+    
+# 将预设转化为dict类型
+def trans_preset(prompt: str):
+    ret = {
+        'role': 'system',
+        'content': prompt
+    }
+    return ret
+
+SESSION_PATH = PATH / "sessions"
+
+def save_obj(obj, name, path):
+    check_path(path)
     with open(path / (name + '.pkl'), 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 def load_obj(name, path):
+    check_path(path)
     try:
         with open(path / (name + '.pkl'), 'rb') as f:
             return pickle.load(f)
     except:
         return None
-
-
-SESSION_PATH = PATH / "sessions"
 
 def f_session_load(session_id):
     pack = load_obj(session_id, SESSION_PATH)

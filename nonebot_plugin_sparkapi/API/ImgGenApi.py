@@ -130,3 +130,21 @@ async def main(appid, api_key, api_secret, IG_url, domain, content):
 #     # asyncio.run(main("your_appid", "your_api_key", "your_api_secret", "https://your_ig_url", "your_domain", "your_content"))
 #     save_base64img(res, "test.jpg")
 
+
+# ---------------------------API Request---------------------------
+IG_url = "http://spark-api.cn-huabei-1.xf-yun.com/v2.1/tti"
+IG_domain = "general"
+
+from ..config import Config
+from nonebot import get_plugin_config
+conf = get_plugin_config(Config)
+
+appid = conf.sparkapi_app_id
+api_secret = conf.sparkapi_api_secret
+api_key = conf.sparkapi_api_key
+
+async def request_IG(content):
+    global res
+    res = ""
+    await main(appid,api_key,api_secret,IG_url,IG_domain,content)
+    return res

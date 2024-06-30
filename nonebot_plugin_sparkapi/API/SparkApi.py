@@ -11,7 +11,7 @@ import json
 import websockets
 import ssl
 
-from .config import Config
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 model_top_k = conf.sparkapi_model_top_k
@@ -82,7 +82,7 @@ async def on_message(ws, message):
         # print(content,end ="")
         global answer
         answer += content
-        # print(1)
+        print('get_res:',content)
         if status == 2:
             await ws.close()
 
@@ -126,3 +126,26 @@ def gen_params(appid, domain, question):
 async def main(appid, api_key, api_secret, Spark_url, domain, question, sid):
     await connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid)
     
+# ---------------------------API Request---------------------------
+from ..machers.data import presets, sessions, spname
+from .. import funcs, storage, info
+
+from copy import deepcopy
+
+appid = conf.sparkapi_app_id
+api_secret = conf.sparkapi_api_secret
+api_key = conf.sparkapi_api_key
+
+model_version = funcs.unify_model_version(conf.sparkapi_model_version)
+Spark_url = funcs.get_Spark_url(model_version)
+domain = funcs.get_domain(model_version)
+
+async def request(history, sid, session_id, pname):
+    history = deepcopy(history)
+    history.insert(0, presets[session_id][pname])
+    history = funcs.checklen(history)
+    print("request:", history)
+    global answer
+    answer = ""
+    await main(appid,api_key,api_secret,Spark_url,domain,history,sid)
+    return answer
