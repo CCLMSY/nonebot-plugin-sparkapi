@@ -1,6 +1,5 @@
 import pickle
 from pathlib import Path
-import pandas as pd
 
 from PIL import Image
 from io import BytesIO
