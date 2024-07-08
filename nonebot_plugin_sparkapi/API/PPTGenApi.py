@@ -79,14 +79,6 @@ async def main(appid, api_secret, content):
     result = await demo.get_result()
     return result
 
-# ---------------------------Test---------------------------
-
-# if __name__ == '__main__':
-#     appid = "b9b8b7a0"
-#     api_secret = "Mzc0NzJmOTNjZDRiNzAzNTg4N2RjYjEy"
-#     content = "集团客户部2023年工作总结"
-#     asyncio.run(main(appid, api_secret, content))
-
 # ---------------------------API Request---------------------------
 from ..config import Config
 from nonebot import get_plugin_config
