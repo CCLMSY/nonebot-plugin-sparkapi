@@ -97,7 +97,7 @@ async def connect_ws(url, domain, content, session_id):
     wsParam = Ws_Param(url)
     ws_url = wsParam.create_url()
 
-    ssl_context = ssl.create_default_context()
+    ssl_context = ssl._create_unverified_context()
     async with websockets.connect(ws_url,ssl=ssl_context) as ws:
         ws.appid = app_id # type:ignore
         ws.domain = domain # type:ignore
