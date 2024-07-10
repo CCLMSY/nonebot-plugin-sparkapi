@@ -193,7 +193,7 @@ AI绘图、AI生成PPT功能的API信息在同一应用下与对话API信息相�
 [DemoPPT: 科大讯飞星火语言模型项目汇报.pptx](https://source.cclmsy.cc/Images/nbp_Sparkapi/科大讯飞星火语言模型项目汇报.pptx)
 
 ## 📝 更新日志
-- 2024.7.11 v2.0.0
+- 2024.7.10 v2.0.0
   - 项目重写
   - 支持会话存储和加载、会话管理
   - 支持预设和历史记录持久化（基于json）
