@@ -1,16 +1,13 @@
-import hashlib
+from nonebot.adapters.onebot.v11 import MessageEvent as ME, PrivateMessageEvent as PME
 
-from nonebot.adapters.onebot.v11 import PrivateMessageEvent as PME # type: ignore
-from nonebot.rule import command
-
-from .config import Config
+from nonebot_plugin_sparkapi.config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 
 group_public = conf.sparkapi_fl_group_public
 max_length = conf.sparkpai_model_maxlength
 
-# 统一模型版本，获取Spark URL、Domain
+# 统一LLM模型版本，获取Spark URL、Domain
 def unify_model_version(model_version : str):
     version : str
     if model_version in ["v4.0","4.0","Ultra","ultra","","default"]:
@@ -52,53 +49,24 @@ def get_domain(model_version : str):
     elif model_version == "v1.5":
         domain = "general"
     return domain
-    
-# def gethash(data:str) -> str: 
-#     return hashlib.md5(data.encode()).hexdigest()
-# def get_sid(data:str) -> str:
-#     return gethash(data)[-20:]
-
-def appendText(role, content, text):
-    # "role": "system","user","assistant"
-    # text: [{"role": "system", "content": ""},...]
-    # 将对话内容追加到text列表中
-    jsoncon = {}
-    jsoncon["role"] = role
-    jsoncon["content"] = content
-    text.append(jsoncon)
-    return text
-
-def checklen(text): # 修理对话长度
-    def getlength(text): # 获取对话长度
-        length = 0
-        for content in text:
-            temp = content["content"]
-            leng = len(temp)
-            length += leng
-        return length
-    while (getlength(text) > max_length):
-        del text[1]
-    return text
 
 # 根据消息类型创建会话ID
-def get_session_id(event):
-    ret = ""
-    if isinstance(event, PME):
-        ret = "private_" + str(event.user_id)
-    elif group_public:
-        ret = event.get_session_id().replace(str(event.user_id), "public")
+fl_group_public = conf.sparkapi_fl_group_public
+fl_interflow = conf.sparkapi_fl_interflow
+def get_session_id(event:ME):
+    session_id = ""
+    if fl_interflow:
+        if fl_group_public:
+            session_id = event.get_session_id().replace(str(event.user_id), "public")
+        else:
+            session_id = "private_" + str(event.user_id)
     else:
-        ret = event.get_session_id()
-    # print(ret)
-    return ret
+        if isinstance(event, PME):
+            session_id = "private_" + str(event.user_id)
+        elif fl_group_public:
+            session_id = event.get_session_id().replace(str(event.user_id), "public")
+        else:
+            session_id = event.get_session_id()
+    return session_id
 
-# 将命令列表转化为Rule
-def trans_command(cmds: str|list[str]):
-    if(isinstance(cmds, str)): 
-        cmds = [cmds]
-    return command(*cmds)
-
-# 合并两个dict
-def merge_dict(dict1, dict2):
-    return {**dict1, **dict2}
 

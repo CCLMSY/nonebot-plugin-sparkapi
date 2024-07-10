@@ -1,4 +1,3 @@
-#type: ignore
 from datetime import datetime
 from time import mktime
 from wsgiref.handlers import format_date_time
@@ -11,25 +10,34 @@ import json
 import websockets
 import ssl
 
-from ..config import Config
+from nonebot_plugin_sparkapi import funcs
+from nonebot_plugin_sparkapi.config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
-model_top_k = conf.sparkapi_model_top_k
-model_temperature = conf.sparkapi_model_temperature
+top_k = conf.sparkapi_model_top_k
+temperature = conf.sparkapi_model_temperature
 maxlength = conf.sparkpai_model_maxlength
 
-answer = ""
+app_id = conf.sparkapi_app_id
+api_key = conf.sparkapi_api_key
+api_secret = conf.sparkapi_api_secret
+
+model_version = funcs.unify_model_version(conf.sparkapi_model_version)
+Spark_url = funcs.get_Spark_url(model_version)
+domain = funcs.get_domain(model_version)
+
+answer = dict()
 
 class Ws_Param(object):
     # 初始化
-    def __init__(self, APPID, APIKey, APISecret, Spark_url):
-        self.APPID = APPID
-        self.APIKey = APIKey
-        self.APISecret = APISecret
-        self.host = urlparse(Spark_url).netloc 
+    def __init__(self, Spark_url):
+        self.APPID = app_id
+        self.APIKey = api_key
+        self.APISecret = api_secret
+        self.host = urlparse(Spark_url).netloc
         self.path = urlparse(Spark_url).path
         self.Spark_url = Spark_url
-        self.sid = ""
+        self.session_id = ""
 
     # 生成url
     def create_url(self):
@@ -57,6 +65,7 @@ class Ws_Param(object):
         # 拼接鉴权参数，生成url
         url = self.Spark_url + '?' + urlencode(v)
 
+        # 确认参数
         # print("APPID: " + self.APPID)
         # print("APIKey: " + self.APIKey)
         # print("APISecret: " + self.APISecret)
@@ -70,82 +79,72 @@ async def on_message(ws, message):
     data = json.loads(message)
     code = data['header']['code']
     if code != 0:
-        err = f'请求错误: {code}, {data}'
-        print(err)
+        err = f'请求错误: Code:{code}, Data:{data}'
         await ws.close()
+        raise Exception(err)
     else:
-        # global sid
-        # sid = data["header"]["sid"]
+        session_id = ws.session_id # type:ignore
         choices = data["payload"]["choices"]
         status = choices["status"]
         content = choices["text"][0]["content"]
-        # print(content,end ="")
         global answer
-        answer += content
-        print('get_res:',content)
+        answer[session_id] += content
+        # print('get_res:',content)
         if status == 2:
             await ws.close()
 
-async def connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid):
-    wsParam = Ws_Param(appid, api_key, api_secret, Spark_url)
+async def connect_ws(url, domain, content, session_id):
+    wsParam = Ws_Param(url)
     ws_url = wsParam.create_url()
 
     ssl_context = ssl.create_default_context()
     async with websockets.connect(ws_url,ssl=ssl_context) as ws:
-        ws.appid = appid
-        ws.question = question
-        ws.domain = domain
-        ws.sid = sid
-        await ws.send(json.dumps(gen_params(appid, domain, question)))
+        ws.appid = app_id # type:ignore
+        ws.domain = domain # type:ignore
+        ws.content = content # type:ignore
+        ws.session_id = session_id # type:ignore
+        params = json.dumps(gen_params(domain, content))
+        # print(params)
+        await ws.send(params)
         async for message in ws:
             await on_message(ws, message)
 
-def gen_params(appid, domain, question):
+def gen_params(domain, content):
     data = {
         "header": {
-            "app_id": appid,
-            "uid": "1234"
+            "app_id": app_id,
+            "uid": "CCLMSY"
         },
         "parameter": {
             "chat": {
                 "domain": domain,
-                "temperature": model_temperature,
-                "max_tokens": maxlength // 2,
-                "top_k": model_top_k,
+                "temperature": temperature,
+                "max_tokens": maxlength ,
+                "top_k": top_k,
                 "auditing": "default"
             }
         },
         "payload": {
             "message": {
-                "text": question
+                "text": content
             }
         }
     }
     return data
 
-async def main(appid, api_key, api_secret, Spark_url, domain, question, sid):
-    await connect_ws(appid, api_key, api_secret, Spark_url, domain, question, sid)
-    
 # ---------------------------API Request---------------------------
-from ..machers.data import presets, sessions, spname
-from .. import funcs, storage, info
+from nonebot_plugin_sparkapi.matchers.session.base import(
+    session_select,
+    add_msg
+)
 
-from copy import deepcopy
-
-appid = conf.sparkapi_app_id
-api_secret = conf.sparkapi_api_secret
-api_key = conf.sparkapi_api_key
-
-model_version = funcs.unify_model_version(conf.sparkapi_model_version)
-Spark_url = funcs.get_Spark_url(model_version)
-domain = funcs.get_domain(model_version)
-
-async def request(history, sid, session_id, pname):
-    history = deepcopy(history)
-    history.insert(0, presets[session_id][pname])
-    history = funcs.checklen(history)
-    print("request:", history)
+async def request_chat(session_id, question):
     global answer
-    answer = ""
-    await main(appid,api_key,api_secret,Spark_url,domain,history,sid)
-    return answer
+    answer[session_id] = ""
+    add_msg(session_id,"user",question)
+    current = session_select(session_id)
+    content = current.content
+    await connect_ws(Spark_url, domain, content, session_id)
+    res = answer[session_id]
+    add_msg(session_id,"assistant",res)
+    return res

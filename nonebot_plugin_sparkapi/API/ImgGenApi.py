@@ -9,18 +9,30 @@ import base64
 import httpx
 import asyncio
 
-res = ""
+from nonebot_plugin_sparkapi.config import Config
+from nonebot import get_plugin_config
+conf = get_plugin_config(Config)
+width = conf.sparkapi_IG_size[0]
+height = conf.sparkapi_IG_size[1]
+
+app_id = conf.sparkapi_app_id
+api_key = conf.sparkapi_api_key
+api_secret = conf.sparkapi_api_secret
+
+IG_url = "https://spark-api.cn-huabei-1.xf-yun.com/v2.1/tti"
+IG_domain = "general"
+    
+res = dict()
 
 class Hs_Param(object):
     # 初始化
-    def __init__(self, APPID, APIKey, APISecret, IG_url):
-        self.APPID = APPID
-        self.APIKey = APIKey
-        self.APISecret = APISecret
+    def __init__(self, IG_url):
+        self.APPID = app_id
+        self.APIKey = api_key
+        self.APISecret = api_secret
         self.host = urlparse(IG_url).netloc
         self.path = urlparse(IG_url).path
         self.IG_url = IG_url
-        self.sid = ""
     
     # 生成url
     def create_url(self):
@@ -48,6 +60,7 @@ class Hs_Param(object):
         # 拼接鉴权参数，生成url
         url = self.IG_url + '?' + urlencode(v)
 
+        # 确认参数
         # print("APPID: " + self.APPID)
         # print("APIKey: " + self.APIKey)
         # print("APISecret: " + self.APISecret)
@@ -55,17 +68,47 @@ class Hs_Param(object):
         # print(url)
         return url
 
-def gen_params(appid, domain, content):
+def parse_response(data,session_id):
+    code = data['header']['code']
+    if code != 0:
+        err = f'请求错误: {code}, {data}'
+        print(err)
+        return data['header']['message']
+    else:
+        choices = data["payload"]["choices"]
+        status = choices["status"]
+        content = choices["text"][0]["content"]
+        global res
+        res[session_id] += content
+        if status == 2:
+            print("Image Generation: OK!")
+    return ""
+
+async def connect_hs(url, domain, content, session_id):
+    hs_param = Hs_Param(url)
+    url = hs_param.create_url()
+
+    params = gen_params(domain, content)
+    async with httpx.AsyncClient(timeout=None) as client:
+        print("Image Generation: Got Request, Generating...")
+        st = asyncio.get_event_loop().time()
+        response = await client.post(url, json=params, headers={'content-type': "application/json"})
+        ed = asyncio.get_event_loop().time()
+        err_msg = parse_response(response.json(),session_id)
+        print(f"Time Consumed: {ed-st:.2f}s")
+    return err_msg
+
+def gen_params(domain, content):
     data = {
         "header": {
-            "app_id": appid,
-            "uid": "1234"
+            "app_id": app_id,
+            "uid": "CCLMSY"
         },
         "parameter": {
             "chat": {
                 "domain": domain,
-                "width": 1280,
-                "height": 720
+                "width": width,
+                "height": height
             }
         },
         "payload": {
@@ -80,37 +123,6 @@ def gen_params(appid, domain, content):
         }
     }
     return data
-
-def parse_response(data):
-    code = data['header']['code']
-    if code != 0:
-        err = f'请求错误: {code}, {data}'
-        print(err)
-    else:
-        choices = data["payload"]["choices"]
-        status = choices["status"]
-        content = choices["text"][0]["content"]
-        global res
-        res += content
-        if status == 2:
-            print("Image Generation: OK!")
-
-async def connect_hs(appid, api_key, api_secret, IG_url, domain, content):
-    hs_param = Hs_Param(appid, api_key, api_secret, IG_url)
-    url = hs_param.create_url()
-    params = gen_params(appid, domain, content)
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        print("Image Generation: Got Request, Generating...")
-        st = asyncio.get_event_loop().time()
-        response = await client.post(url, json=params, headers={'content-type': "application/json"})
-        ed = asyncio.get_event_loop().time()
-        parse_response(response.json())
-        print(f"Time Consumed: {ed-st:.2f}s")
-    return res
-
-async def main(appid, api_key, api_secret, IG_url, domain, content):
-    await connect_hs(appid, api_key, api_secret, IG_url, domain, content)
-    return res
 
 # ---------------------- Test ----------------------
 # import base64
@@ -132,19 +144,30 @@ async def main(appid, api_key, api_secret, IG_url, domain, content):
 
 
 # ---------------------------API Request---------------------------
-IG_url = "http://spark-api.cn-huabei-1.xf-yun.com/v2.1/tti"
-IG_domain = "general"
+from pathlib import Path 
+from PIL import Image
+from io import BytesIO
+import base64
 
-from ..config import Config
-from nonebot import get_plugin_config
-conf = get_plugin_config(Config)
+PATH = Path(".") / "SparkApi"
 
-appid = conf.sparkapi_app_id
-api_secret = conf.sparkapi_api_secret
-api_key = conf.sparkapi_api_key
+def save_base64img(base64_data, session_id:str):
+    user_path = PATH / session_id / "images"
+    if not user_path.exists():
+        user_path.mkdir(parents=True)
+    img_data = base64.b64decode(base64_data) # base64解码
+    img = Image.open(BytesIO(img_data)) # 读取图片
+    filename = user_path / (get_time()+".png")
+    print(filename)
+    img.save(filename) # 保存图片
+    return filename
+def get_time():
+    return datetime.now().strftime('%Y%m%d_%H%M%S')
 
-async def request_IG(content):
+async def request_IG(session_id, content):
     global res
-    res = ""
-    await main(appid,api_key,api_secret,IG_url,IG_domain,content)
-    return res
+    res[session_id] = ""
+    err_msg = await connect_hs(IG_url, IG_domain, content, session_id)
+    if err_msg:
+        return err_msg
+    return save_base64img(res[session_id], session_id)

@@ -1,15 +1,22 @@
-# type: ignore
-import hashlib
 import hmac
+import hashlib
 import base64
-import json
-import time
 import httpx
 
+import json
+import time
+
+from nonebot_plugin_sparkapi.config import Config
+from nonebot import get_plugin_config
+conf = get_plugin_config(Config)
+
+app_id = conf.sparkapi_app_id
+api_secret = conf.sparkapi_api_secret
+
 class AIPPT():
-    def __init__(self, APPId, APISecret, Text):
-        self.APPid = APPId
-        self.APISecret = APISecret
+    def __init__(self, Text):
+        self.APPid = app_id
+        self.APISecret = api_secret
         self.text = Text
         self.header = {}
 
@@ -58,7 +65,7 @@ class AIPPT():
         if sid is not None:
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"https://zwapi.xfyun.cn/api/aippt/progress?sid={sid}", headers=self.header)
-                print(f"res:{response.text}")
+                # print(f"res:{response.text}")
                 return response.text
         else:
             return None
@@ -74,29 +81,9 @@ class AIPPT():
                 break
         return PPTurl
 
-async def main(appid, api_secret, content):
-    demo = AIPPT(appid, api_secret, content)
+# ---------------------------API Request---------------------------
+
+async def request_PPT(content):
+    demo = AIPPT(content)
     result = await demo.get_result()
     return result
-
-# ---------------------------Test---------------------------
-
-# if __name__ == '__main__':
-#     appid = "b9b8b7a0"
-#     api_secret = "Mzc0NzJmOTNjZDRiNzAzNTg4N2RjYjEy"
-#     content = "集团客户部2023年工作总结"
-#     asyncio.run(main(appid, api_secret, content))
-
-# ---------------------------API Request---------------------------
-from ..config import Config
-from nonebot import get_plugin_config
-conf = get_plugin_config(Config)
-
-appid = conf.sparkapi_app_id
-api_secret = conf.sparkapi_api_secret
-api_key = conf.sparkapi_api_key
-
-
-async def request_IP(content):
-    res = await main(appid, api_secret, content)
-    return res
