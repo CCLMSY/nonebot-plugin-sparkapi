@@ -1,5 +1,5 @@
 name: Bug 反馈
-description: 在此反馈项目存在的 Bug
+description: 反馈本项目存在的 Bug
 title: "[Bug] "
 labels: ["bug"]
 projects: ["octo-org/1", "octo-org/44"]
