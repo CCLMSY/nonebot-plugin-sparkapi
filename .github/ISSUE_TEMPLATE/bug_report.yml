@@ -1,0 +1,67 @@
+name: Bug 反馈（正在编辑中，请勿填写）
+description: 提交 Bug 反馈以帮助我们改进代码
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Self-check
+      description: 在提交issue前，请确认以下事项
+      options:
+        - label: 我已阅读本项目及NoneBot2文档中的相关内容
+          required: true
+        - label: 我已翻阅其他issue，并找不到相关问题
+          required: true
+          
+  - type: input
+    id: os_version
+    attributes:
+      label: 操作系统
+      description: 填写运行的操作系统
+      placeholder: (e.g.) Windows 11
+    validations:
+      required: true
+
+  - type: input
+    id: python_version
+    attributes:
+      label: Python 版本
+      description: 填写使用的 Python 版本
+      placeholder: (e.g.) 3.11.8
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 请详细说明你遇到的问题
+      placeholder: "在这里填写问题描述"
+    validations:
+      required: true
+
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 问题复现
+      description: 如果你的问题可以复现，请提供操作步骤
+      placeholder: |
+        1. 我配置了[配置项]为……
+        2. 输入了……内容
+        3. 产生了……错误/行为
+    validations:
+      required: true
+        
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 清晰简洁地描述你期望发生的事情
+      
+  - type: textarea
+    id: logs
+    attributes:
+      label: 截图或日志
+      description: 提供有助于诊断问题的任何日志和截图
