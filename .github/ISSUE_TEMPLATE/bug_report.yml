@@ -1,5 +1,5 @@
 name: Bug 反馈
-description: 提交 Bug 反馈以帮助改进代码
+description: 反馈遇到的 Bug ，以帮助改进项目
 title: "Bug: "
 labels: ["bug"]
 body:
@@ -9,6 +9,8 @@ body:
       label: Self-check
       description: 在提交issue前，请确认以下事项
       options:
+        - label: 我已明确我的问题
+          required: true
         - label: 我已阅读本项目及NoneBot2文档中的相关内容
           required: true
         - label: 我已翻阅其他issue，并找不到相关问题
@@ -59,9 +61,11 @@ body:
     attributes:
       label: 期望行为
       description: 清晰简洁地描述你期望发生的事情
+      placeholder: "在这里填写期望行为"
 
   - type: textarea
     id: logs
     attributes:
       label: 截图或日志
       description: 提供有助于诊断问题的任何日志和截图
+      placeholder: "在这里粘贴日志或截图"

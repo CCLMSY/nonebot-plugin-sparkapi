@@ -1,0 +1,43 @@
+name: Feature 需求
+description: 提出新的需求，为项目添砖Java
+title: "Feature: "
+labels: ["feature"]
+body:
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Self-check
+      description: 在提交issue前，请确认以下事项
+      options:
+        - label: 我已明确我的需求
+          required: true
+        - label: 这个需求与本项目具有相关性
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 需求描述
+      description: 请详细说明你需要的功能或特性
+      placeholder: "在这里填写需求描述"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: example
+    attributes:
+      label: 期望效果
+      description: 请描述你期望的功能效果，或者提供一些样例
+      placeholder: |
+        输入： /xxx
+        输出： xxx
+    validations:
+      required: true
+
+  - type: textarea
+    id: reference
+    attributes:
+      label: 参考资料
+      description: 这个功能是否有相关实现、资料可供参考
+      placeholder: "在这里填写参考资料或任何你认为有帮助的信息"
+  
