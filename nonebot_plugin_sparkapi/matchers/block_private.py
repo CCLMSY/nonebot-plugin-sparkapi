@@ -5,7 +5,7 @@ from nonebot.rule import is_type
 from nonebot.plugin.on import on_message
 
 from nonebot import get_plugin_config
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 conf = get_plugin_config(Config)
 fl_private_chat = conf.sparkapi_fl_private_chat
 priority = conf.sparkapi_priority

@@ -1,3 +1,4 @@
+#type:ignore
 import hmac
 import hashlib
 import base64
@@ -6,7 +7,7 @@ import httpx
 import json
 import time
 
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 

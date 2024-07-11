@@ -10,9 +10,9 @@ from .base import(
     preset_select,
     fl_group_at
 )
-from nonebot_plugin_sparkapi.matchers.session.base import set_prompt
+from ..session.base import set_prompt
 
-from nonebot_plugin_sparkapi.config import Config
+from ...config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 command = conf.sparkapi_commands["preset_set"]

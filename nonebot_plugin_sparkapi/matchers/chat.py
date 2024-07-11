@@ -5,10 +5,10 @@ from nonebot.rule import to_me,command
 from nonebot.plugin.on import on_message
 from nonebot.params import CommandArg,EventMessage
 
-from nonebot_plugin_sparkapi.funcs import get_session_id
-from nonebot_plugin_sparkapi.API.SparkApi import request_chat
+from ..funcs import get_session_id
+from ..API.SparkApi import request_chat
 
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 command_chat = conf.sparkapi_commands["chat"]

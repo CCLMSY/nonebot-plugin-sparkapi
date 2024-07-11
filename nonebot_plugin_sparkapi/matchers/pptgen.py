@@ -5,9 +5,9 @@ from nonebot.rule import to_me,command
 from nonebot.plugin.on import on_message
 from nonebot.params import ArgPlainText
 
-from nonebot_plugin_sparkapi.API.PPTGenApi import request_PPT
+from ..API.PPTGenApi import request_PPT
 
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 command_pptgen = conf.sparkapi_commands["ppt_generation"]

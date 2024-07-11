@@ -3,7 +3,7 @@ from nonebot.adapters.onebot.v11 import MessageSegment as MS
 from nonebot.rule import to_me,command
 from nonebot.plugin.on import on_message
 
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 import nonebot as nb
 conf = nb.get_plugin_config(Config)
 command_help = conf.sparkapi_commands["help"]

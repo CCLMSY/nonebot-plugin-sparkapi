@@ -9,7 +9,7 @@ import base64
 import httpx
 import asyncio
 
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 width = conf.sparkapi_IG_size[0]

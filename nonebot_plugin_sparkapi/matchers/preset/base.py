@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 from pathlib import Path
 
-from nonebot_plugin_sparkapi.funcs import get_session_id
+from ...funcs import get_session_id
 
 # 类定义
 class preset:
@@ -111,7 +111,7 @@ def presets_to_json(presets:list[preset])->list[dict]:
     return [p.to_dict() for p in presets]
 
 # 默认预设列表
-from nonebot_plugin_sparkapi.config import Config
+from ...config import Config
 import nonebot as nb
 conf = nb.get_plugin_config(Config)
 

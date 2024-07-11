@@ -5,11 +5,11 @@ from nonebot.rule import to_me,command
 from nonebot.plugin.on import on_message
 from nonebot.params import ArgPlainText
 
-from nonebot_plugin_sparkapi.funcs import get_session_id
-from nonebot_plugin_sparkapi.API.ImgGenApi import request_IG
+from ..funcs import get_session_id
+from ..API.ImgGenApi import request_IG
 from pathlib import Path
 
-from nonebot_plugin_sparkapi.config import Config
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 command_imggen = conf.sparkapi_commands["image_generation"]

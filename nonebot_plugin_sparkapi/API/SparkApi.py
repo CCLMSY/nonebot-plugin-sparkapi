@@ -10,8 +10,8 @@ import json
 import websockets
 import ssl
 
-from nonebot_plugin_sparkapi import funcs
-from nonebot_plugin_sparkapi.config import Config
+from .. import funcs
+from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
 top_k = conf.sparkapi_model_top_k
@@ -133,7 +133,7 @@ def gen_params(domain, content):
     return data
 
 # ---------------------------API Request---------------------------
-from nonebot_plugin_sparkapi.matchers.session.base import(
+from ..matchers.session.base import(
     session_select,
     add_msg
 )
