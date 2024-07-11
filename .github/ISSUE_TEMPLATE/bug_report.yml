@@ -1,5 +1,5 @@
-name: Bug 反馈（正在编辑中，请勿填写）
-description: 提交 Bug 反馈以帮助我们改进代码
+name: Bug 反馈
+description: 提交 Bug 反馈以帮助改进代码
 title: "Bug: "
 labels: ["bug"]
 body:
@@ -48,9 +48,9 @@ body:
       label: 问题复现
       description: 如果你的问题可以复现，请提供操作步骤
       placeholder: |
-        1. 我配置了[配置项]为……
-        2. 输入了……内容
-        3. 产生了……错误/行为
+        1. 我配置了...[配置项]为...[值]
+        2. 输入...[内容]
+        3. 产生了...[错误/行为]
     validations:
       required: true
         
@@ -59,7 +59,7 @@ body:
     attributes:
       label: 期望行为
       description: 清晰简洁地描述你期望发生的事情
-      
+
   - type: textarea
     id: logs
     attributes:
