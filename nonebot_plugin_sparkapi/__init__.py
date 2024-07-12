@@ -1,5 +1,4 @@
 from nonebot.plugin import PluginMetadata
-# from nonebot.permission import SUPERUSER
 
 from .config import Config
 from . import matchers

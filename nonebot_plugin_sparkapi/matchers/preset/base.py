@@ -83,7 +83,7 @@ def check_presets_file(session_id:str=""):
     if not presets_file.exists():
         presets = presets_to_json(presets_default)
         with open(presets_file, "w") as f:
-            json.dump(presets, f, ensure_ascii=False, indent=4)
+            json.dump(presets, f, indent=4)
 
 # 读取用户预设文件
 def presets_load(session_id:str)->list[preset]:
@@ -102,7 +102,7 @@ def presets_save(session_id:str, presets:list[preset]):
     presets_file = user_path / "presets.json"
     with open(presets_file, "w") as f:
         presets_json = presets_to_json(presets)
-        json.dump(presets_json, f, ensure_ascii=False, indent=4)
+        json.dump(presets_json, f, indent=4)
 
 def json_to_presets(presets_json:list[dict])->list[preset]:
     return [preset(preset_dict=p) for p in presets_json]

@@ -8,7 +8,7 @@
 
 # nonebot-plugin-sparkapi
 
-_✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
+_✨ 科大讯飞星火大模型官方API聊天机器人 ✨_
 
 <a href="./LICENSE">
     <img src="https://img.shields.io/github/license/CCLMSY/nonebot-plugin-sparkapi.svg" alt="license">
@@ -22,7 +22,7 @@ _✨ 科大讯飞星火大语言模型官方API聊天机器人 ✨_
 
 ## 📖 介绍
 
-基于Nonebot2平台/科大讯飞星火大语言模型官方API的AI聊天机器人插件，适配OneBotV11协议
+基于Nonebot2平台/科大讯飞星火大模型官方API的AI聊天机器人插件，适配OneBotV11协议
 
 适用于所有模型版本（默认当前最新（v4.0）），同时支持自定义人物预设、会话管理，兼具AI绘图、AI生成PPT等功能
 

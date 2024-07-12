@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_sparkapi"
-version = "2.0.2"
+version = "2.0.3"
 description = "Nonebot2 ChatBot that calls the official API of the iflyrec SparkDesk for all model versions, defaulting to the current latest (v4.0)"
 authors = [
     { name = "CCLMSY", email = "2502408581@qq.com" }

@@ -152,7 +152,7 @@ def check_sessions_file(session_id:str=""):
         init_sessions = [session()]
         sessions_json = sessions_to_json(init_sessions)
         with open(sessions_file, "w") as f:
-            json.dump(sessions_json,f,ensure_ascii=False,indent=4)
+            json.dump(sessions_json,f,indent=4)
 
 def sessions_load(session_id:str)->list[session]:
     check_sessions_file(session_id)
@@ -169,7 +169,7 @@ def sessions_save(session_id:str, sessions:list[session]):
     sessions_file = user_path / "sessions.json"
     with open(sessions_file, "w") as f:
         sessions_json = sessions_to_json(sessions)
-        json.dump(sessions_json, f, ensure_ascii=False, indent=4)
+        json.dump(sessions_json, f, indent=4)
 
 def json_to_sessions(sessions_json:list[dict])->list[session]:
     return [session(session_dict=s) for s in sessions_json]
