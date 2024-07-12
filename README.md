@@ -28,6 +28,8 @@ _✨ 科大讯飞星火大模型官方API聊天机器人 ✨_
 
 开发环境：Python3.11.8 on Conda, Windows 11
 
+⚠注意：由于编码方式更改，从旧版本更新到v2.0.4版本时务必删除BOT项目文件夹下的`SparkApi`文件夹，即清除所有缓存文件。由此带来不便敬请谅解QwQ
+
 ### 📦 项目地址
 - Github：https://github.com/CCLMSY/nonebot-plugin-sparkapi 
 - Pypi：https://pypi.org/project/nonebot-plugin-sparkapi/
