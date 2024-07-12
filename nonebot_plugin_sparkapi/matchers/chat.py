@@ -11,7 +11,7 @@ from ..API.SparkApi import request_chat
 from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
-command_chat = conf.sparkapi_commands["chat"]
+command_chat = conf.sparkapi_command_chat
 priority = conf.sparkapi_priority+2
 max_length = conf.sparkpai_model_maxlength
 fl_notice = conf.sparkapi_fl_notice
