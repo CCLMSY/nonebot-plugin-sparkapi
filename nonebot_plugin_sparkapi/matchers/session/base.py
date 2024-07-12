@@ -151,14 +151,14 @@ def check_sessions_file(session_id:str=""):
     if not sessions_file.exists():
         init_sessions = [session()]
         sessions_json = sessions_to_json(init_sessions)
-        with open(sessions_file, "w") as f:
-            json.dump(sessions_json,f,indent=4)
+        with open(sessions_file, "w", encoding='utf-8') as f:
+            json.dump(sessions_json, f, ensure_ascii=False, indent=4)
 
 def sessions_load(session_id:str)->list[session]:
     check_sessions_file(session_id)
     user_path = PATH / session_id
     sessions_file = user_path / "sessions.json"
-    with open(sessions_file,"r") as f:
+    with open(sessions_file,"r", encoding='utf-8') as f:
         sessions_json = json.load(f)
         sessions = json_to_sessions(sessions_json)
         return sessions
@@ -167,9 +167,9 @@ def sessions_save(session_id:str, sessions:list[session]):
     check_sessions_file(session_id)
     user_path = PATH / session_id
     sessions_file = user_path / "sessions.json"
-    with open(sessions_file, "w") as f:
+    with open(sessions_file, "w", encoding='utf-8') as f:
         sessions_json = sessions_to_json(sessions)
-        json.dump(sessions_json, f, indent=4)
+        json.dump(sessions_json, f, ensure_ascii=False, indent=4)
 
 def json_to_sessions(sessions_json:list[dict])->list[session]:
     return [session(session_dict=s) for s in sessions_json]
