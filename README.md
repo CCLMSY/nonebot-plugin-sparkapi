@@ -109,7 +109,7 @@ AI绘图、AI生成PPT功能的API信息在同一应用下与对话API信息相�
 | SPARKAPI_MODEL_VERSION | 否 | "" | 星火大模型的版本，默认为当前最新。<br>可选值："default", "v4.0", "v3.5", "v3.0", "v2.0", "v1.5" |
 | SPARKAPI_MODEL_TOP_K | 否 | 4 | 平衡生成文本的质量和多样性。<br>较小的 k 值会减少随机性，使得输出更加稳定；<br>而较大的 k 值会增加随机性，产生更多新颖的输出。<br>取值范围[1, 6] |
 | SPARKAPI_MODEL_TEMPERATURE | 否 | 0.5 | 控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。<br>取值范围 (0，1] |
-| SPARKAPI_MODEL_MAXLENGTH | 否 | 8000 | 单次上下文最大token长度，建议取值范围：[4000,8000]。<br>详细说明见下文 |
+| SPARKAPI_MODEL_MAXLENGTH | 否 | 8000 | 单次上下文最大token长度，v2.0以上建议取值范围：[4000,8000]。<br>详细说明见下文 |
 | SPARKAPI_PRIORITY | 否 | 80 | 本插件响应事件的优先级，建议设置较大的值。可选值：1~97。<br>详细说明见下文 |
 | SPARKAPI_COMMAND_CHAT | 否 | "" | 机器人对话指令，默认为""可直接对话|
 | SPARKAPI_FL_NOTICE | 否 | True | 收到对话请求时是否提示“已收到请求” |
@@ -123,9 +123,11 @@ AI绘图、AI生成PPT功能的API信息在同一应用下与对话API信息相�
 | SPARKAPI_BOT_NAME | 否 | "" | 机器人的名字 |
 
 ### SPARKAPI_MODEL_MAXKLENGTH
-- 单次上下文最大token长度，不能超过8000token。建议取值范围：[4000,8000]
-- 该值越大，对话历史记录保留越长，单次请求消耗token的最大值越大。
+- 单次上下文最大token长度
+- 该值越大，对话历史记录保留越长，单次请求消耗token的最大值越大
 - 1token≈1.5个中文字≈1个英文单词。保守起见，在本插件中1token取1.25个字符
+- v1.5建议取值：4000（API限制不能超过4000token）
+- v2.0以上建议取值范围：[4000,8000]（API限制不能超过8000token）
 - QQ单条消息上限4500个字符（计3600token），消息超过最大长度可能导致响应不正确
 
 ### SPARKAPI_PRIORITY
