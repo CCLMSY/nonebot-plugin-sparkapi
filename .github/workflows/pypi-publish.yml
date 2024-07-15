@@ -33,7 +33,7 @@ jobs:
         --wheel
         --outdir dist/
         .
-    - name: Publish a Python distribution to PyPI
+    - name: Publish a Python distribution to PyPI # 发布Python分发到PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
