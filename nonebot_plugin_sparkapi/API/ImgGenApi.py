@@ -26,7 +26,7 @@ res = dict()
 
 class Hs_Param(object):
     # 初始化
-    def __init__(self, IG_url):
+    def __init__(self):
         self.APPID = app_id
         self.APIKey = api_key
         self.APISecret = api_secret
@@ -84,11 +84,11 @@ def parse_response(data,session_id):
             print("Image Generation: OK!")
     return ""
 
-async def connect_hs(url, domain, content, session_id):
-    hs_param = Hs_Param(url)
+async def connect_hs(content, session_id):
+    hs_param = Hs_Param()
     url = hs_param.create_url()
 
-    params = gen_params(domain, content)
+    params = gen_params(content)
     async with httpx.AsyncClient(timeout=None) as client:
         print("Image Generation: Got Request, Generating...")
         st = asyncio.get_event_loop().time()
@@ -98,7 +98,7 @@ async def connect_hs(url, domain, content, session_id):
         print(f"Time Consumed: {ed-st:.2f}s")
     return err_msg
 
-def gen_params(domain, content):
+def gen_params(content):
     data = {
         "header": {
             "app_id": app_id,
@@ -106,7 +106,7 @@ def gen_params(domain, content):
         },
         "parameter": {
             "chat": {
-                "domain": domain,
+                "domain": IG_domain,
                 "width": width,
                 "height": height
             }
@@ -167,7 +167,7 @@ def get_time():
 async def request_IG(session_id, content):
     global res
     res[session_id] = ""
-    err_msg = await connect_hs(IG_url, IG_domain, content, session_id)
+    err_msg = await connect_hs(content, session_id)
     if err_msg:
         return err_msg
     return save_base64img(res[session_id], session_id)

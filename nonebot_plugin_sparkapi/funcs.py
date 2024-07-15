@@ -68,5 +68,3 @@ def get_session_id(event:ME):
         else:
             session_id = event.get_session_id()
     return session_id
-
-

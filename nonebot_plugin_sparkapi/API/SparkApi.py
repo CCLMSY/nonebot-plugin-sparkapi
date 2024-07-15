@@ -14,17 +14,20 @@ from .. import funcs
 from ..config import Config
 from nonebot import get_plugin_config
 conf = get_plugin_config(Config)
-top_k = conf.sparkapi_model_top_k
-temperature = conf.sparkapi_model_temperature
-maxlength = conf.sparkpai_model_maxlength
-
-app_id = conf.sparkapi_app_id
-api_key = conf.sparkapi_api_key
-api_secret = conf.sparkapi_api_secret
 
 model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
 domain = funcs.get_domain(model_version)
+
+top_k = conf.sparkapi_model_top_k
+temperature = conf.sparkapi_model_temperature
+maxlength = conf.sparkpai_model_maxlength
+if model_version == "v1.5" and maxlength > 4000:
+    maxlength = 4000
+
+app_id = conf.sparkapi_app_id
+api_key = conf.sparkapi_api_key
+api_secret = conf.sparkapi_api_secret
 
 answer = dict()
 
