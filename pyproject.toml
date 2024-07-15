@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_sparkapi"
-version = "2.0.6"
+version = "2.0.7"
 authors = [
     { name = "CCLMSY", email = "2502408581@qq.com" }
 ]
