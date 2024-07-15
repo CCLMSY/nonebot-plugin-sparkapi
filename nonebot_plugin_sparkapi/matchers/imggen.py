@@ -28,9 +28,9 @@ mathcer_imggen = on_message(
 @mathcer_imggen.got("content",prompt="请输入生成图片内容，回复“取消”取消生成")
 async def _(event:ME, content=ArgPlainText()):
     session_id = get_session_id(event)
-    await mathcer_imggen.send(MS.text("已收到请求，正在生成中...\n过程大约需要30s，请耐心等待"), at_sender=fl_group_at)
     if content == "取消":
         await mathcer_imggen.finish(MS.text("已取消生成图片"), at_sender=fl_group_at)
+    await mathcer_imggen.send(MS.text("已收到请求，正在生成中...\n过程大约需要30s，请耐心等待"), at_sender=fl_group_at)
     try:
         img = await request_IG(session_id,content)
     except Exception as e:

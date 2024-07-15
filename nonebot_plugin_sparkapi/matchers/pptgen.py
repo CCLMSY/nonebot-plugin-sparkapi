@@ -25,9 +25,9 @@ mathcer_pptgen = on_message(
 
 @mathcer_pptgen.got("content",prompt="请输入生成PPT内容，回复“取消”取消生成")
 async def _(content=ArgPlainText()):
-    await mathcer_pptgen.send(MS.text("已收到请求，正在生成中...\n过程大约需要60s，请耐心等待"), at_sender=fl_group_at)
     if content == "取消":
         await mathcer_pptgen.finish(MS.text("已取消生成PPT"), at_sender=fl_group_at)
+    await mathcer_pptgen.send(MS.text("已收到请求，正在生成中...\n过程大约需要60s，请耐心等待"), at_sender=fl_group_at)
     try:
         ppt = await request_PPT(content)
     except Exception as e:
