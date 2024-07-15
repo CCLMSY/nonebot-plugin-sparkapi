@@ -27,6 +27,8 @@ matcher_chat = on_message(
 @matcher_chat.handle()
 async def _(event:ME, arg:Message=CommandArg() if command_chat else EventMessage()):
     question = arg.extract_plain_text().strip()
+    if not question:
+        await matcher_chat.finish("内容不能为空！", at_sender=fl_group_at)
     session_id = get_session_id(event)
     answer = ""
     if fl_notice:
