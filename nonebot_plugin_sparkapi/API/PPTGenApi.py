@@ -1,90 +1,93 @@
-#type:ignore
-import hmac
-import hashlib
 import base64
-import httpx
-
-import json
+import hashlib
+import hmac
 import time
+from typing import Any
 
-from ..config import Config
-from nonebot import get_plugin_config
-conf = get_plugin_config(Config)
+import httpx
+from nonebot.log import logger
+
+from nonebot_plugin_sparkapi.config import conf
 
 app_id = conf.sparkapi_app_id
 api_secret = conf.sparkapi_api_secret
 
-class AIPPT():
+
+class AIPPT:
     def __init__(self, Text):
-        self.APPid = app_id
+        self.APPID = app_id
         self.APISecret = api_secret
         self.text = Text
-        self.header = {}
+        self.headers = self.sign_headers()
 
-    def get_signature(self, ts):
+    def md5(self, text: str) -> str:
+        return hashlib.md5(text.encode("utf-8")).hexdigest()
+
+    def hmac_sha1_encrypt(self, encrypt_text: str, encrypt_key: str) -> str:
+        return base64.b64encode(
+            hmac.new(
+                encrypt_key.encode("utf-8"),
+                encrypt_text.encode("utf-8"),
+                digestmod=hashlib.sha1,
+            ).digest()
+        ).decode("utf-8")
+
+    def sign_headers(self) -> dict[str, str]:
+        timestamp = str(int(time.time()))
         try:
-            auth = self.md5(self.APPid + str(ts))
-            return self.hmac_sha1_encrypt(auth, self.APISecret)
+            auth = self.md5(self.APPID + timestamp)
+            signature = self.hmac_sha1_encrypt(auth, self.APISecret)
         except Exception as e:
-            print(e)
-            return None
-
-    def hmac_sha1_encrypt(self, encrypt_text, encrypt_key):
-        return base64.b64encode(hmac.new(encrypt_key.encode('utf-8'), encrypt_text.encode('utf-8'), hashlib.sha1).digest()).decode('utf-8')
-
-    def md5(self, text):
-        return hashlib.md5(text.encode('utf-8')).hexdigest()
-
-    async def create_task(self):
-        url = 'https://zwapi.xfyun.cn/api/aippt/create'
-        timestamp = int(time.time())
-        signature = self.get_signature(timestamp)
-        body = self.getbody(self.text)
-
-        headers = {
-            "appId": self.APPid,
-            "timestamp": str(timestamp),
+            logger.debug(f"AIPPT 签名获取失败: {e}")
+            raise ValueError("AIPPT 签名获取失败") from e
+        return {
+            "appId": self.APPID,
+            "timestamp": timestamp,
             "signature": signature,
-            "Content-Type": "application/json; charset=utf-8"
+            "Content-Type": "application/json; charset=utf-8",
         }
-        self.header = headers
+
+    async def create_task(self) -> int:
+        url = "https://zwapi.xfyun.cn/api/aippt/create"
+        body = {"query": self.text}
         async with httpx.AsyncClient() as client:
-            response = await client.post(url=url, data=json.dumps(body), headers=headers)
-            resp = response.json()
-            if resp['code'] == 0:
-                print('创建PPT任务成功')
-                return resp['data']['sid']
-            else:
-                print('创建PPT任务失败')
-                return None
+            response = await client.post(
+                url=url,
+                json=body,
+                headers=self.headers,
+            )
 
-    def getbody(self, text):
-        body = {"query": text}
-        return body
-
-    async def get_process(self, sid):
-        if sid is not None:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(f"https://zwapi.xfyun.cn/api/aippt/progress?sid={sid}", headers=self.header)
-                # print(f"res:{response.text}")
-                return response.text
+        resp: dict[str, Any] = response.json()
+        if resp["code"] == 0:
+            logger.success("创建PPT任务成功")
+            return resp["data"]["sid"]
         else:
-            return None
+            logger.error("创建PPT任务失败")
+            # TODO: 抛出特定的错误类型
+            raise Exception("创建PPT任务失败")
 
-    async def get_result(self):
+    async def get_process(self, sid: int) -> dict[str, Any]:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"https://zwapi.xfyun.cn/api/aippt/progress?sid={sid}",
+                headers=self.headers,
+            )
+            # logger.debug(f"AIPPT.get_process({sid=}): {response.text}")
+            return response.json()
+
+    async def get_result(self) -> str:
         task_id = await self.create_task()
         while True:
-            response = await self.get_process(task_id)
-            resp = json.loads(response)
-            process = resp['data']['process']
+            resp = await self.get_process(task_id)
+            process = resp["data"]["process"]
             if process == 100:
-                PPTurl = resp['data']['pptUrl']
+                PPTurl = resp["data"]["pptUrl"]
                 break
         return PPTurl
 
+
 # ---------------------------API Request---------------------------
 
-async def request_PPT(content):
-    demo = AIPPT(content)
-    result = await demo.get_result()
-    return result
+
+async def request_PPT(content: str) -> str:
+    return await AIPPT(content).get_result()

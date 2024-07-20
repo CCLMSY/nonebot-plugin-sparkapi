@@ -1,19 +1,19 @@
-from nonebot.adapters.onebot.v11 import MessageEvent as ME
-from nonebot.adapters.onebot.v11 import MessageSegment as MS
+from nonebot_plugin_alconna.uniseg import UniMessage
 
-from .base import(
+from .base import (
+    SessionID,
     cmd_preset,
-    get_session_id,
-    get_preset_list,
+    fl_group_at,
     get_preset_commands,
-    fl_group_at
+    get_preset_list,
 )
 
 matcher_preset = cmd_preset.command(tuple())
+
+
 @matcher_preset.handle()
-async def _(event:ME):
-    session_id = get_session_id(event)
+async def _(session_id: SessionID):
     preset_list = get_preset_list(session_id)
     preset_commands = get_preset_commands()
-    msg = preset_list + "\n\n" + preset_commands
-    await matcher_preset.finish(MS.text(msg), at_sender=fl_group_at)
+    msg = f"{preset_list}\n\n{preset_commands}"
+    await UniMessage(msg).finish(at_sender=fl_group_at)

@@ -1,19 +1,19 @@
-from nonebot.adapters.onebot.v11 import MessageEvent as ME
-from nonebot.adapters.onebot.v11 import MessageSegment as MS
+from nonebot_plugin_alconna.uniseg import UniMessage
 
-from .base import(
+from .base import (
+    SessionID,
     cmd_session,
-    get_session_id,
-    get_sessions_list,
+    fl_group_at,
     get_session_commands,
-    fl_group_at
+    get_sessions_list,
 )
 
 matcher_session = cmd_session.command(tuple())
+
+
 @matcher_session.handle()
-async def _(event:ME):
-    session_id = get_session_id(event)
+async def _(session_id: SessionID):
     session_list = get_sessions_list(session_id)
     session_commands = get_session_commands()
     msg = session_list + "\n\n" + session_commands
-    await matcher_session.finish(MS.text(msg), at_sender=fl_group_at)
+    await UniMessage(msg).finish(at_sender=fl_group_at)

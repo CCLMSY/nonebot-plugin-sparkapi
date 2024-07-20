@@ -1,128 +1,98 @@
+import asyncio
+import base64
+import hashlib
+import hmac
 from datetime import datetime
 from time import mktime
-from wsgiref.handlers import format_date_time
+from typing import Any
 from urllib.parse import urlencode, urlparse
+from wsgiref.handlers import format_date_time
 
-import hmac
-import hashlib
-import base64
 import httpx
-import asyncio
+from nonebot.log import logger
+from nonebot_plugin_alconna.uniseg.utils import fleep
 
-from ..config import Config
-from nonebot import get_plugin_config
-conf = get_plugin_config(Config)
-width = conf.sparkapi_IG_size[0]
-height = conf.sparkapi_IG_size[1]
+from nonebot_plugin_sparkapi.config import DATA_PATH, conf
 
+width, height = conf.sparkapi_IG_size
 app_id = conf.sparkapi_app_id
 api_key = conf.sparkapi_api_key
 api_secret = conf.sparkapi_api_secret
 
 IG_url = "https://spark-api.cn-huabei-1.xf-yun.com/v2.1/tti"
 IG_domain = "general"
-    
-res = dict()
+IG_host = urlparse(IG_url).netloc
+IG_path = urlparse(IG_url).path
 
-class Hs_Param(object):
-    # 初始化
-    def __init__(self):
-        self.APPID = app_id
-        self.APIKey = api_key
-        self.APISecret = api_secret
-        self.host = urlparse(IG_url).netloc
-        self.path = urlparse(IG_url).path
-        self.IG_url = IG_url
-    
-    # 生成url
-    def create_url(self):
-        # 生成RFC1123格式的时间戳
-        now = datetime.now()
-        date = format_date_time(mktime(now.timetuple()))
 
-        # 拼接字符串
-        signature_origin = "host: " + self.host + "\n"
-        signature_origin += "date: " + date + "\n"
-        signature_origin += "POST " + self.path + " HTTP/1.1"
+def b64_sha256(key: str, msg: str) -> str:
+    return base64.b64encode(
+        hmac.new(
+            key.encode("utf-8"),
+            msg.encode("utf-8"),
+            digestmod=hashlib.sha256,
+        ).digest()
+    ).decode(encoding="utf-8")
 
-        # 进行hmac-sha256进行加密
-        signature_sha = hmac.new(self.APISecret.encode('utf-8'), signature_origin.encode('utf-8'), digestmod=hashlib.sha256).digest()
-        signature_sha_base64 = base64.b64encode(signature_sha).decode(encoding='utf-8')
-        authorization_origin = f'api_key="{self.APIKey}", algorithm="hmac-sha256", headers="host date request-line", signature="{signature_sha_base64}"'
-        authorization = base64.b64encode(authorization_origin.encode('utf-8')).decode(encoding='utf-8')
 
-        # 将请求的鉴权参数组合为字典
-        v = {
-            "authorization": authorization,
-            "date": date,
-            "host": self.host
-        }
-        # 拼接鉴权参数，生成url
-        url = self.IG_url + '?' + urlencode(v)
+def create_url():
+    # 生成RFC1123格式的时间戳
+    now = datetime.now()
+    date = format_date_time(mktime(now.timetuple()))
 
-        # 确认参数
-        # print("APPID: " + self.APPID)
-        # print("APIKey: " + self.APIKey)
-        # print("APISecret: " + self.APISecret)
-        # print("signature_origin: " + signature_origin)
-        # print(url)
-        return url
+    # 拼接字符串
+    signature_origin = f"host: {IG_host}\n"
+    signature_origin += f"date: {date}\n"
+    signature_origin += f"POST {IG_path} HTTP/1.1"
 
-def parse_response(data,session_id):
-    code = data['header']['code']
+    # 进行hmac-sha256进行加密
+    signature = b64_sha256(api_secret, signature_origin)
+    auth_origin = f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line", signature="{signature}"'
+    auth = base64.b64encode(auth_origin.encode("utf-8")).decode("utf-8")
+
+    # 将请求的鉴权参数组合为字典
+    v = {"authorization": auth, "date": date, "host": IG_host}
+    # 拼接鉴权参数，生成url
+    url = f"{IG_url}?{urlencode(v)}"
+
+    return url
+
+
+def parse_response(data: dict[str, Any]) -> str:
+    code: int = data["header"]["code"]
     if code != 0:
-        err = f'请求错误: {code}, {data}'
-        print(err)
-        return data['header']['message']
-    else:
-        choices = data["payload"]["choices"]
-        status = choices["status"]
-        content = choices["text"][0]["content"]
-        global res
-        res[session_id] += content
-        if status == 2:
-            print("Image Generation: OK!")
-    return ""
+        logger.error(f"请求错误: {code=}, {data}")
+        # TODO: 抛出特定的错误类型
+        raise Exception(data["header"]["message"])
 
-async def connect_hs(content, session_id):
-    hs_param = Hs_Param()
-    url = hs_param.create_url()
+    choices = data["payload"]["choices"]
+    status = choices["status"]
+    content = choices["text"][0]["content"]
+    if status == 2:
+        logger.success("Image Generation: OK!")
+    return content
+
+
+async def connect_hs(content: str) -> str:
+    url = create_url()
 
     params = gen_params(content)
     async with httpx.AsyncClient(timeout=None) as client:
-        print("Image Generation: Got Request, Generating...")
+        logger.info("Image Generation: Got Request, Generating...")
         st = asyncio.get_event_loop().time()
-        response = await client.post(url, json=params, headers={'content-type': "application/json"})
+        response = await client.post(url, json=params)
         ed = asyncio.get_event_loop().time()
-        err_msg = parse_response(response.json(),session_id)
-        print(f"Time Consumed: {ed-st:.2f}s")
-    return err_msg
+    logger.info(f"Time Consumed: {ed-st:.2f}s")
+    return parse_response(response.json())
 
-def gen_params(content):
-    data = {
-        "header": {
-            "app_id": app_id,
-            "uid": "CCLMSY"
-        },
-        "parameter": {
-            "chat": {
-                "domain": IG_domain,
-                "width": width,
-                "height": height
-            }
-        },
-        "payload": {
-            "message": {
-                "text": [
-                    {
-                        "role": "user",
-                        "content": content
-                    }
-                ]
-            }
-        }
+
+def gen_params(content: str) -> dict[str, Any]:
+    return {
+        "header": {"app_id": app_id, "uid": "CCLMSY"},
+        "parameter": {"chat": {"domain": IG_domain, "width": width, "height": height}},
+        "payload": {"message": {"text": [{"role": "user", "content": content}]}},
     }
-    return data
+
 
 # ---------------------- Test ----------------------
 # import base64
@@ -144,30 +114,21 @@ def gen_params(content):
 
 
 # ---------------------------API Request---------------------------
-from pathlib import Path 
-from PIL import Image
-from io import BytesIO
 import base64
+from pathlib import Path
 
-PATH = Path(".") / "SparkApi"
 
-def save_base64img(base64_data, session_id:str):
-    user_path = PATH / session_id / "images"
-    if not user_path.exists():
-        user_path.mkdir(parents=True)
-    img_data = base64.b64decode(base64_data) # base64解码
-    img = Image.open(BytesIO(img_data)) # 读取图片
-    filename = user_path / (get_time()+".png")
-    print(filename)
-    img.save(filename) # 保存图片
-    return filename
-def get_time():
-    return datetime.now().strftime('%Y%m%d_%H%M%S')
+def save_base64img(base64_data: str, session_id: str) -> Path:
+    user_path = DATA_PATH / session_id / "images"
+    user_path.mkdir(parents=True, exist_ok=True)
+    img_data = base64.b64decode(base64_data)  # base64解码
+    ext = fleep.get(img_data).extensions[0]
+    filepath = user_path / datetime.now().strftime(f"%Y%m%d_%H%M%S.{ext}")
+    filepath.write_bytes(img_data)  # 保存图片
+    logger.debug(f"Saved image: {filepath}")
+    return filepath
 
-async def request_IG(session_id, content):
-    global res
-    res[session_id] = ""
-    err_msg = await connect_hs(content, session_id)
-    if err_msg:
-        return err_msg
-    return save_base64img(res[session_id], session_id)
+
+async def request_IG(session_id: str, content: str):
+    result = await connect_hs(content)
+    return save_base64img(result, session_id)
