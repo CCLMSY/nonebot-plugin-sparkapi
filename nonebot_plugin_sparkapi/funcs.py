@@ -1,10 +1,14 @@
+import contextlib
+import shutil
 from typing import Annotated, Literal
 
+from nonebot.adapters import Event
 from nonebot.params import Depends
+from nonebot.log import logger
 from nonebot_plugin_alconna import MsgTarget
 from nonebot_plugin_session import EventSession, SessionIdType
 
-from .config import conf
+from .config import DATA_PATH, conf
 
 group_public = conf.sparkapi_fl_group_public
 max_length = conf.sparkpai_model_maxlength
@@ -62,26 +66,69 @@ fl_group_public = conf.sparkapi_fl_group_public
 fl_interflow = conf.sparkapi_fl_interflow
 
 
-# def get_session_id(event: ME):
-#     session_id = ""
-#     if fl_interflow:
-#         if fl_group_public:
-#             session_id = event.get_session_id().replace(str(event.user_id), "public")
-#         else:
-#             session_id = f"private_{event.user_id}"
-#     else:
-#         if isinstance(event, PME):
-#             session_id = f"private_{event.user_id}"
-#         elif fl_group_public:
-#             session_id = event.get_session_id().replace(str(event.user_id), "public")
-#         else:
-#             session_id = event.get_session_id()
-#     return session_id
+# 未安装 OneBot 适配器时, 跳过迁移检查
+def _migrate_ob11(  # pyright: ignore[reportRedeclaration]
+    event: Event, session_id: str
+):
+    return
 
 
-def _session_id(session: EventSession, target: MsgTarget):
-    # XXX: Breaking change
-    #      修改了 session_id 的格式，将导致原对话记录丢失
+with contextlib.suppress(ImportError):
+    from nonebot.adapters.onebot.v11 import MessageEvent
+    from nonebot.adapters.onebot.v11 import PrivateMessageEvent
+
+    def _ob11_session_id(event: Event) -> str | None:
+        """仅适配 OneBot V11 时的 session_id"""
+
+        if not isinstance(event, MessageEvent):
+            return None
+
+        session_id = event.get_session_id()
+        if fl_interflow:
+            if fl_group_public:
+                session_id = session_id.replace(event.get_user_id(), "public")
+            else:
+                session_id = f"private_{event.user_id}"
+        else:
+            if isinstance(event, PrivateMessageEvent):
+                session_id = f"private_{event.user_id}"
+            elif fl_group_public:
+                session_id = session_id.replace(event.get_user_id(), "public")
+        return session_id
+
+    def _migrate_ob11(event: Event, session_id: str) -> None:
+        """检测并迁移 OneBot V11 session_id"""
+        ob11_session_id = _ob11_session_id(event)
+        if ob11_session_id is None:
+            return
+
+        ob11_user_fp = DATA_PATH / ob11_session_id
+        if not ob11_user_fp.exists():
+            return
+
+        user_fp = DATA_PATH / session_id
+        user_fp.mkdir(parents=True, exist_ok=True)
+        session_fp = ob11_user_fp / "sessions.json"
+        preset_fp = ob11_user_fp / "presets.json"
+
+        log = logger.opt(colors=True)
+        log.info(f"正在迁移 <y>{event.get_user_id()}</y> 的用户数据")
+
+        if session_fp.exists():
+            target = user_fp / "sessions.json"
+            log.info(f"  <c>{session_fp}</c> -> <c>{target}</c>")
+            session_fp.rename(target)
+
+        if preset_fp.exists():
+            target = user_fp / "presets.json"
+            log.info(f"  <c>{preset_fp}</c> -> <c>{target}</c>")
+            preset_fp.rename(target)
+
+        shutil.rmtree(ob11_user_fp)
+        log.success(f"<y>{event.get_user_id()}</y> 的用户数据迁移完成")
+
+
+def _session_id(event: Event, session: EventSession, target: MsgTarget) -> str:
     match (fl_interflow, fl_group_public, target.private):
         case (_, True, False):
             flag = SessionIdType.GROUP
@@ -89,7 +136,10 @@ def _session_id(session: EventSession, target: MsgTarget):
             flag = SessionIdType.USER
         case _:
             flag = SessionIdType.GROUP_USER
-    return session.get_id(flag)
+
+    session_id = session.get_id(flag)
+    _migrate_ob11(event, session_id)
+    return session_id
 
 
 SessionID = Annotated[str, Depends(_session_id)]
