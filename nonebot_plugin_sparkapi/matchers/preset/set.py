@@ -1,4 +1,3 @@
-from nonebot.adapters import Event
 from nonebot.params import ArgPlainText
 
 from nonebot_plugin_sparkapi.config import conf
@@ -19,7 +18,7 @@ async def _(session_id: SessionID):
 
 
 @matcher_preset_set.got("index")
-async def _(event: Event, session_id: SessionID, index: str = ArgPlainText()):
+async def _(session_id: SessionID, index: str = ArgPlainText()):
     from ..session.base import set_prompt
 
     if not index.isdigit():
