@@ -2,11 +2,10 @@ from nonebot.adapters import Message
 from nonebot.params import CommandArg, EventMessage
 from nonebot.plugin.on import on_message
 from nonebot.rule import command, to_me
-from nonebot_plugin_alconna.uniseg import UniMessage
 
 from nonebot_plugin_sparkapi.API.SparkApi import request_chat
 from nonebot_plugin_sparkapi.config import conf
-from nonebot_plugin_sparkapi.funcs import SessionID
+from nonebot_plugin_sparkapi.funcs import SessionID, solve_at
 
 command_chat = conf.sparkapi_command_chat
 priority = conf.sparkapi_priority + 2
@@ -26,11 +25,11 @@ async def _(
 ):
     question = arg.extract_plain_text().strip()
     if not question:
-        await UniMessage("内容不能为空！").finish(at_sender=fl_group_at)
+        await solve_at("内容不能为空！").finish()
 
     receipt = None
     if fl_notice:
-        receipt = await UniMessage("正在思考中...").send(at_sender=fl_group_at)
+        receipt = await solve_at("正在思考中...").send()
 
     try:
         answer = await request_chat(session_id, question)
@@ -39,4 +38,4 @@ async def _(
 
     if receipt is not None:
         await receipt.recall()
-    await UniMessage(answer).finish(at_sender=fl_group_at)
+    await solve_at(answer).finish()

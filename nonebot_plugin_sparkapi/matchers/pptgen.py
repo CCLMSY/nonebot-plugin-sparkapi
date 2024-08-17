@@ -1,28 +1,24 @@
 from nonebot.params import ArgPlainText
-from nonebot.plugin.on import on_message
-from nonebot.rule import command, to_me
-from nonebot_plugin_alconna.uniseg import UniMessage
+from nonebot.plugin.on import on_command
+from nonebot.rule import to_me
 
 from nonebot_plugin_sparkapi.API.PPTGenApi import request_PPT
 from nonebot_plugin_sparkapi.config import conf
+from nonebot_plugin_sparkapi.funcs import solve_at
 
 command_pptgen = conf.sparkapi_commands["ppt_generation"]
 priority = conf.sparkapi_priority + 1
-max_length = conf.sparkpai_model_maxlength
-fl_notice = conf.sparkapi_fl_notice
-fl_group_at = conf.sparkapi_fl_group_at
 
-rule = to_me() & command(command_pptgen)
-mathcer_pptgen = on_message(rule=rule, priority=priority, block=True)
+mathcer_pptgen = on_command(command_pptgen, rule=to_me(), priority=priority, block=True)
 
 
 @mathcer_pptgen.got("content", prompt="请输入生成PPT内容，回复“取消”取消生成")
 async def _(content: str = ArgPlainText()):
     if content == "取消":
-        await UniMessage("已取消生成PPT").finish(at_sender=fl_group_at)
+        await solve_at("已取消生成PPT").finish()
 
     msg = "已收到请求，正在生成中...\n过程大约需要60s，请耐心等待"
-    await UniMessage(msg).send(at_sender=fl_group_at)
+    await solve_at(msg).send()
 
     try:
         ppt = await request_PPT(content)
@@ -31,4 +27,4 @@ async def _(content: str = ArgPlainText()):
     else:
         msg = f"生成成功！\n复制链接前往浏览器下载：\n{ppt}"
 
-    await UniMessage(msg).finish(at_sender=fl_group_at)
+    await solve_at(msg).finish()

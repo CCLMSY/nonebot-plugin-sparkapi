@@ -1,10 +1,10 @@
 from nonebot.params import ArgPlainText
 from nonebot.typing import T_State
-from nonebot_plugin_alconna.uniseg import UniMessage
 
 from nonebot_plugin_sparkapi.config import conf
+from nonebot_plugin_sparkapi.funcs import solve_at
 
-from .base import SessionID, cmd_session, fl_group_at, session_save
+from .base import SessionID, cmd_session, session_save
 
 command = conf.sparkapi_commands["session_save"]
 
@@ -14,7 +14,7 @@ matcher_session_save = cmd_session.command(command)
 @matcher_session_save.got("title", prompt="请为当前会话命名，回复“取消”取消保存")
 async def _(state: T_State, title=ArgPlainText()):
     if title == "取消":
-        await UniMessage("已取消保存").finish(at_sender=fl_group_at)
+        await solve_at("已取消保存").finish()
     else:
         state["title"] = title
 
@@ -29,4 +29,4 @@ async def _(session_id: SessionID, state: T_State):
     else:
         msg = "会话保存成功！"
 
-    await UniMessage(msg).finish(at_sender=fl_group_at)
+    await solve_at(msg).finish()

@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from nonebot import get_driver
+from nonebot.plugin.on import CommandGroup
+from nonebot.rule import to_me
 
 from nonebot_plugin_sparkapi.config import DATA_PATH, conf
 from nonebot_plugin_sparkapi.funcs import SessionID as SessionID
@@ -20,7 +22,7 @@ class Preset:
         title: str = "",
         prompt: str = "",
         time: str = "",
-        preset_dict: dict[str, Any] = {},
+        preset_dict: dict[str, Any] | None = None,
     ):
         if preset_dict:
             self.title = preset_dict["title"]
@@ -159,16 +161,10 @@ def get_preset_commands():
 
 
 # 命令组
-from nonebot.plugin.on import CommandGroup
-from nonebot.rule import to_me
-
-priority = conf.sparkapi_priority + 1
 cmd_preset = CommandGroup(
     cmd=commands["preset"],
     rule=to_me(),
-    priority=priority,
+    priority=conf.sparkapi_priority + 1,
     prefix_aliases=True,
     block=True,
 )
-
-fl_group_at = conf.sparkapi_fl_group_at

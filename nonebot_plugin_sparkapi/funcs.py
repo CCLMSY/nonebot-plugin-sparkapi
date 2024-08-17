@@ -4,9 +4,10 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 from nonebot.adapters import Event
+from nonebot.internal.matcher import current_event
 from nonebot.log import logger
 from nonebot.params import Depends
-from nonebot_plugin_alconna import MsgTarget
+from nonebot_plugin_alconna import MsgTarget, UniMessage
 from nonebot_plugin_session import EventSession, SessionIdType
 
 from .config import conf
@@ -65,6 +66,14 @@ def get_domain(model_version: ModelVersion):
 # 根据消息类型创建会话ID
 fl_group_public = conf.sparkapi_fl_group_public
 fl_interflow = conf.sparkapi_fl_interflow
+fl_group_at = conf.sparkapi_fl_group_at
+
+
+def solve_at(msg: str | None = None) -> UniMessage:
+    unimsg = UniMessage(msg) if msg is not None else UniMessage()
+    if not fl_group_at:
+        return unimsg
+    return UniMessage.at(current_event.get().get_user_id()) + unimsg
 
 
 # 未安装 OneBot 适配器时, 跳过迁移检查

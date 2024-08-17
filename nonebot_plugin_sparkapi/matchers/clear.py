@@ -1,9 +1,8 @@
 from nonebot.plugin.on import on_message
 from nonebot.rule import command, to_me
-from nonebot_plugin_alconna.uniseg import UniMessage
 
 from nonebot_plugin_sparkapi.config import conf
-from nonebot_plugin_sparkapi.funcs import SessionID
+from nonebot_plugin_sparkapi.funcs import SessionID, solve_at
 
 from .session.base import clear_current
 
@@ -24,4 +23,4 @@ async def _(session_id: SessionID):
     else:
         msg = "清空对话成功！"
 
-    await UniMessage(msg).finish(at_sender=fl_group_at)
+    await solve_at(msg).finish()

@@ -1,12 +1,6 @@
-from nonebot_plugin_alconna.uniseg import UniMessage
+from nonebot_plugin_sparkapi.funcs import solve_at
 
-from .base import (
-    SessionID,
-    cmd_preset,
-    fl_group_at,
-    get_preset_commands,
-    get_preset_list,
-)
+from .base import SessionID, cmd_preset, get_preset_commands, get_preset_list
 
 matcher_preset = cmd_preset.command(tuple())
 
@@ -16,4 +10,4 @@ async def _(session_id: SessionID):
     preset_list = get_preset_list(session_id)
     preset_commands = get_preset_commands()
     msg = f"{preset_list}\n\n{preset_commands}"
-    await UniMessage(msg).finish(at_sender=fl_group_at)
+    await solve_at(msg).finish()

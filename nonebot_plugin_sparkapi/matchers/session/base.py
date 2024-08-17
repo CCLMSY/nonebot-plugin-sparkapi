@@ -3,6 +3,8 @@ from datetime import datetime
 from pathlib import Path
 
 from nonebot import get_driver
+from nonebot.plugin.on import CommandGroup
+from nonebot.rule import to_me
 
 from nonebot_plugin_sparkapi.config import DATA_PATH, conf
 from nonebot_plugin_sparkapi.funcs import SessionID as SessionID
@@ -221,19 +223,14 @@ def get_session_commands():
 
 
 # 命令组
-from nonebot.plugin.on import CommandGroup
-from nonebot.rule import to_me
-
-priority = conf.sparkapi_priority + 1
 cmd_session = CommandGroup(
     cmd=commands["session"],
     rule=to_me(),
-    priority=priority,
+    priority=conf.sparkapi_priority + 1,
     prefix_aliases=True,
     block=True,
 )
 
-fl_group_at = conf.sparkapi_fl_group_at
 
 # #test
 # data = [
