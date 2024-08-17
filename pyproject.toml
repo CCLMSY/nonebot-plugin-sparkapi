@@ -11,6 +11,7 @@ dependencies = [
     "websockets >=12.0, <13.0",
     "httpx >=0.19.0, <1.0.0",
     "nonebot-plugin-alconna ~=0.50.1",
+    "nonebot-plugin-localstore ~=0.6.0",
     "nonebot-plugin-session ~=0.3.1",
 ]
 requires-python = ">=3.10"

@@ -1,6 +1,5 @@
-from pathlib import Path
-
 from nonebot import get_plugin_config
+from nonebot_plugin_localstore import get_data_dir
 from pydantic import BaseModel
 
 
@@ -31,9 +30,6 @@ class Config(BaseModel):
     注：QQ单条消息上限4500个字符（计3600token），消息超过最大长度可能导致响应不正确
     """
 
-    # 优先级：该值越小，事件越先被触发。本插件建议设置较大的值。可选值：1~97
-    # 若触发本插件事件，所有插件中优先级大于此值的事件都将被阻断。
-    # 本插件中事件的优先级顺序：私聊阻断（=priority）< 功能（=priority+1）< 对话（=priority+2）
     sparkapi_priority: int = 80  # 优先级
     """
     优先级：该值越小，事件越先被触发。本插件建议设置较大的值。可选值：1~97
@@ -49,21 +45,21 @@ class Config(BaseModel):
     """机器人对话指令（默认：为""即可直接对话）"""
     # 命令
     sparkapi_commands : dict[str, str] = { 
-        "chat" : "", # 本条不生效，仅便于插件配置并维持代码一致性
-        "preset" : "preset", # 预设管理
-            "preset_create" : "create", # 创建人物预设
-            "preset_set" : "set", # 切换人物预设
-            "preset_show" : "show", # 显示人物预设
-            "preset_delete" : "delete", # 删除人物预设
-        "session" : "session", # 会话管理
-            "session_save" : "save", # 保存对话记录
-            "session_load" : "load",  # 加载对话记录
-            "session_show" : "show",  # 显示对话记录
-            "session_delete" : "delete", # 删除对话记录
-        "clear" : "clear", # 清空当前对话
-        "image_generation" : "image",  # AI绘图
-        "ppt_generation" : "ppt",  # AI制作PPT
-        "help" : "help" # 帮助信息
+        "chat" : "",                        # 本条不生效，仅便于插件配置并维持代码一致性
+        "preset" : "preset",                # 预设管理
+            "preset_create" : "create",     # 创建人物预设
+            "preset_set" : "set",           # 切换人物预设
+            "preset_show" : "show",         # 显示人物预设
+            "preset_delete" : "delete",     # 删除人物预设
+        "session" : "session",              # 会话管理
+            "session_save" : "save",        # 保存对话记录
+            "session_load" : "load",        # 加载对话记录
+            "session_show" : "show",        # 显示对话记录
+            "session_delete" : "delete",    # 删除对话记录
+        "clear" : "clear",                  # 清空当前对话
+        "image_generation" : "image",       # AI绘图
+        "ppt_generation" : "ppt",           # AI制作PPT
+        "help" : "help"                     # 帮助信息
     }
     # 命令说明，用于生成帮助信息
     sparkapi_commands_info: dict[str, str] = { 
@@ -113,4 +109,4 @@ class Config(BaseModel):
 
 
 conf = get_plugin_config(Config)
-DATA_PATH = Path() / "SparkApi"
+DATA_PATH = get_data_dir("nonebot_plugin_sparkapi")

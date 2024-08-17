@@ -1,14 +1,15 @@
 import contextlib
 import shutil
+from pathlib import Path
 from typing import Annotated, Literal
 
 from nonebot.adapters import Event
-from nonebot.params import Depends
 from nonebot.log import logger
+from nonebot.params import Depends
 from nonebot_plugin_alconna import MsgTarget
 from nonebot_plugin_session import EventSession, SessionIdType
 
-from .config import DATA_PATH, conf
+from .config import conf
 
 group_public = conf.sparkapi_fl_group_public
 max_length = conf.sparkpai_model_maxlength
@@ -74,8 +75,9 @@ def _migrate_ob11(  # pyright: ignore[reportRedeclaration]
 
 
 with contextlib.suppress(ImportError):
-    from nonebot.adapters.onebot.v11 import MessageEvent
-    from nonebot.adapters.onebot.v11 import PrivateMessageEvent
+    from nonebot.adapters.onebot.v11 import MessageEvent, PrivateMessageEvent
+
+    OLD_DATA_PATH = Path() / "SparkApi"
 
     def _ob11_session_id(event: Event) -> str | None:
         """仅适配 OneBot V11 时的 session_id"""
@@ -102,11 +104,11 @@ with contextlib.suppress(ImportError):
         if ob11_session_id is None:
             return
 
-        ob11_user_fp = DATA_PATH / ob11_session_id
+        ob11_user_fp = OLD_DATA_PATH / ob11_session_id
         if not ob11_user_fp.exists():
             return
 
-        user_fp = DATA_PATH / session_id
+        user_fp = OLD_DATA_PATH / session_id
         user_fp.mkdir(parents=True, exist_ok=True)
         session_fp = ob11_user_fp / "sessions.json"
         preset_fp = ob11_user_fp / "presets.json"

@@ -2,6 +2,7 @@ from nonebot import require
 from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 require("nonebot_plugin_alconna")
+require("nonebot_plugin_localstore")
 require("nonebot_plugin_session")
 from . import matchers
 from .config import Config
