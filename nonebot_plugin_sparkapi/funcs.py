@@ -70,10 +70,11 @@ fl_group_at = conf.sparkapi_fl_group_at
 
 
 def solve_at(msg: str | None = None) -> UniMessage:
+    event = current_event.get()
     unimsg = UniMessage(msg) if msg is not None else UniMessage()
-    if not fl_group_at:
+    if not fl_group_at or UniMessage.get_target(event).private:
         return unimsg
-    return UniMessage.at(current_event.get().get_user_id()) + unimsg
+    return UniMessage.at(event.get_user_id()) + unimsg
 
 
 # 未安装 OneBot 适配器时, 跳过迁移检查
