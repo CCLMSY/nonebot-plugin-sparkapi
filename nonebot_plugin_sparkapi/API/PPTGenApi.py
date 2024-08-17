@@ -13,15 +13,16 @@ app_id = conf.sparkapi_app_id
 api_secret = conf.sparkapi_api_secret
 
 
+def _md5(text: str) -> str:
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
+
+
 class AIPPT:
-    def __init__(self, Text):
+    def __init__(self, text: str):
         self.APPID = app_id
         self.APISecret = api_secret
-        self.text = Text
+        self.text = text
         self.headers = self.sign_headers()
-
-    def md5(self, text: str) -> str:
-        return hashlib.md5(text.encode("utf-8")).hexdigest()
 
     def hmac_sha1_encrypt(self, encrypt_text: str, encrypt_key: str) -> str:
         return base64.b64encode(
@@ -35,7 +36,7 @@ class AIPPT:
     def sign_headers(self) -> dict[str, str]:
         timestamp = str(int(time.time()))
         try:
-            auth = self.md5(self.APPID + timestamp)
+            auth = _md5(self.APPID + timestamp)
             signature = self.hmac_sha1_encrypt(auth, self.APISecret)
         except Exception as e:
             logger.debug(f"AIPPT 签名获取失败: {e}")
@@ -79,8 +80,7 @@ class AIPPT:
         task_id = await self.create_task()
         while True:
             resp = await self.get_process(task_id)
-            process = resp["data"]["process"]
-            if process == 100:
+            if resp["data"]["process"] == 100:
                 PPTurl = resp["data"]["pptUrl"]
                 break
         return PPTurl

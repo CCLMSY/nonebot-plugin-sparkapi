@@ -12,6 +12,7 @@ import websockets
 
 from nonebot_plugin_sparkapi import funcs
 from nonebot_plugin_sparkapi.config import conf
+from nonebot_plugin_sparkapi.matchers.session.base import add_msg, session_select
 
 model_version = funcs.unify_model_version(conf.sparkapi_model_version)
 Spark_url = funcs.get_Spark_url(model_version)
@@ -120,7 +121,6 @@ def gen_params(domain: str, content: list[dict[str, str]]):
 
 
 # ---------------------------API Request---------------------------
-from nonebot_plugin_sparkapi.matchers.session.base import add_msg, session_select
 
 
 async def request_chat(session_id: str, question: str):

@@ -3,7 +3,7 @@ import base64
 import hashlib
 import hmac
 from datetime import datetime
-from time import mktime
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode, urlparse
 from wsgiref.handlers import format_date_time
@@ -37,8 +37,7 @@ def b64_sha256(key: str, msg: str) -> str:
 
 def create_url():
     # 生成RFC1123格式的时间戳
-    now = datetime.now()
-    date = format_date_time(mktime(now.timetuple()))
+    date = format_date_time(datetime.now().timestamp())
 
     # 拼接字符串
     signature_origin = f"host: {IG_host}\n"
@@ -114,8 +113,6 @@ def gen_params(content: str) -> dict[str, Any]:
 
 
 # ---------------------------API Request---------------------------
-import base64
-from pathlib import Path
 
 
 def save_base64img(base64_data: str, session_id: str) -> Path:
@@ -123,10 +120,10 @@ def save_base64img(base64_data: str, session_id: str) -> Path:
     user_path.mkdir(parents=True, exist_ok=True)
     img_data = base64.b64decode(base64_data)  # base64解码
     ext = fleep.get(img_data).extensions[0]
-    filepath = user_path / datetime.now().strftime(f"%Y%m%d_%H%M%S.{ext}")
-    filepath.write_bytes(img_data)  # 保存图片
-    logger.debug(f"Saved image: {filepath}")
-    return filepath
+    file_path = user_path / datetime.now().strftime(f"%Y%m%d_%H%M%S.{ext}")
+    file_path.write_bytes(img_data)  # 保存图片
+    logger.debug(f"Saved image: {file_path}")
+    return file_path
 
 
 async def request_IG(session_id: str, content: str):
