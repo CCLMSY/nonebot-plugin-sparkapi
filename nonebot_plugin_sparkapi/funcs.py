@@ -150,7 +150,7 @@ def _session_id(event: Event, session: EventSession, target: MsgTarget) -> str:
         case _:
             flag = SessionIdType.GROUP_USER
 
-    session_id = session.get_id(flag)
+    session_id = session.get_id(flag).replace(" ", "_")
     _migrate_ob11(event, session_id)
     return session_id
 
