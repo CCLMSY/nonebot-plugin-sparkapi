@@ -86,6 +86,7 @@ def _migrate_ob11(  # pyright: ignore[reportRedeclaration]
 
 with contextlib.suppress(ImportError):
     from nonebot.adapters.onebot.v11 import MessageEvent, PrivateMessageEvent
+    from .config import DATA_PATH as NEW_DATA_PATH
 
     OLD_DATA_PATH = Path() / "SparkApi"
 
@@ -118,7 +119,7 @@ with contextlib.suppress(ImportError):
         if not ob11_user_fp.exists():
             return
 
-        user_fp = OLD_DATA_PATH / session_id
+        user_fp = NEW_DATA_PATH / session_id
         user_fp.mkdir(parents=True, exist_ok=True)
         session_fp = ob11_user_fp / "sessions.json"
         preset_fp = ob11_user_fp / "presets.json"
