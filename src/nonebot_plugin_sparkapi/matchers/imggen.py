@@ -4,19 +4,19 @@ from nonebot.exception import ActionFailed
 from nonebot.params import ArgPlainText
 from nonebot.plugin.on import on_command
 from nonebot.rule import to_me
-from nonebot_plugin_alconna.uniseg import MsgTarget
 
 from nonebot_plugin_sparkapi.API.ImgGenApi import request_IG
 from nonebot_plugin_sparkapi.config import conf
 from nonebot_plugin_sparkapi.funcs import SessionID, solve_at
 
-command_imggen = conf.sparkapi_commands["image_generation"]
-priority = conf.sparkapi_priority + 1
 
-async def fl_imggen(target: MsgTarget) -> bool:
-    return conf.sparkapi_fl_imggen
+mathcer_imggen = on_command(
+    conf.sparkapi_commands["image_generation"],
+    rule=to_me(),
+    priority=conf.sparkapi_priority + 1,
+    block=True,
+)
 
-mathcer_imggen = on_command(command_imggen, rule=to_me()&fl_imggen, priority=priority, block=True)
 
 @mathcer_imggen.got("content", prompt="请输入生成图片内容，回复“取消”取消生成")
 async def _(session_id: SessionID, content=ArgPlainText()):

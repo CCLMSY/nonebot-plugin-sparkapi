@@ -17,24 +17,26 @@ class Preset:
     time: str
     content: dict[str, str]
 
-    def __init__(
-        self,
-        title: str = "",
-        prompt: str = "",
-        time: str = "",
-        preset_dict: dict[str, Any] | None = None,
-    ):
-        if preset_dict:
-            self.title = preset_dict["title"]
-            self.time = preset_dict["time"]
-            self.content = preset_dict["content"]
-        else:
-            self.title = title
-            self.time = time if time else get_time()
-            self.content = {"role": "system", "content": prompt}
+    def __init__(self, title: str, time: str, content: dict[str, str]) -> None:
+        self.title = title
+        self.time = time
+        self.content = content
 
-    def __getitem__(self, key):
-        return getattr(self, key)
+    @classmethod
+    def from_prompt(cls, title: str, prompt: str, time: str | None = None):
+        return cls(
+            title=title,
+            time=time or format_time(),
+            content={"role": "system", "content": prompt},
+        )
+
+    @classmethod
+    def from_dict(cls, preset_dict: dict[str, Any]):
+        return cls(
+            title=preset_dict["title"],
+            time=preset_dict["time"],
+            content=preset_dict["content"],
+        )
 
     def to_dict(self) -> dict:
         return {"title": self.title, "time": self.time, "content": self.content}
@@ -47,14 +49,14 @@ class Preset:
         return info
 
 
-def get_time():
+def format_time():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
 # 在用户预设列表的index位置插入一个新的预设
 def preset_insert(session_id: str, title: str, prompt: str, index: int = -1):
     presets = presets_load(session_id)
-    new_preset = Preset(title, prompt)
+    new_preset = Preset.from_prompt(title, prompt)
     if index >= 0:
         presets.insert(index, new_preset)
     else:
@@ -66,7 +68,7 @@ def preset_insert(session_id: str, title: str, prompt: str, index: int = -1):
 def preset_delete(session_id: str, title: str = "", index: int = -1):
     presets = presets_load(session_id)
     if title:
-        presets = list(filter(lambda x: x.title != title, presets))
+        presets = [p for p in presets if p.title != title]
     elif index >= 0:
         del presets[index]
     else:
@@ -75,16 +77,20 @@ def preset_delete(session_id: str, title: str = "", index: int = -1):
 
 
 # 选择用户预设列表中的指定名称/序号的预设，名称优先、选第一个
-def preset_select(session_id: str, title: str = "", index: int = -1) -> Preset:
+def preset_select(
+    session_id: str,
+    title: str | None = None,
+    index: int | None = None,
+) -> Preset:
     presets = presets_load(session_id)
-    if title:
-        ret = list(filter(lambda x: x.title == title, presets))
-        if ret:
-            return ret[0]
-        else:
-            raise ValueError(f"找不到标题为“{title}”的预设")
-    else:
+    if title is not None:
+        if ret := next((p for p in presets if p.title == title), None):
+            return ret
+        raise ValueError(f"找不到标题为“{title}”的预设")
+    elif index is not None:
         return presets[index]
+
+    assert False, "title 和 index 不能同时为 None"
 
 
 # 检查用户预设文件是否存在，不存在则创建
@@ -95,7 +101,7 @@ def check_presets_file(session_id: str) -> Path:
     if not presets_file.exists():
         presets = presets_to_json(presets_default)
         with presets_file.open("w", encoding="utf-8") as f:
-            json.dump(presets, f, ensure_ascii=False, indent=4)
+            json.dump(presets, f, ensure_ascii=False, indent=2)
     return presets_file
 
 
@@ -112,11 +118,11 @@ def presets_save(session_id: str, presets: list[Preset]):
     presets_file = check_presets_file(session_id)
     presets_json = presets_to_json(presets)
     with presets_file.open("w", encoding="utf-8") as f:
-        json.dump(presets_json, f, ensure_ascii=False, indent=4)
+        json.dump(presets_json, f, ensure_ascii=False, indent=2)
 
 
 def json_to_presets(presets_json: list[dict[str, Any]]) -> list[Preset]:
-    return [Preset(preset_dict=p) for p in presets_json]
+    return [Preset.from_dict(p) for p in presets_json]
 
 
 def presets_to_json(presets: list[Preset]) -> list[dict]:
@@ -125,10 +131,18 @@ def presets_to_json(presets: list[Preset]) -> list[dict]:
 
 bot_name = conf.sparkapi_bot_name.strip()
 prompt_assistant = f"在接下来的对话中，你的名字叫 {bot_name}。" if bot_name else ""
-preset_assistant = Preset("[默认]智能助手", prompt_assistant, "0000-00-00 00:00:00")
+preset_assistant = Preset.from_prompt(
+    "[默认]智能助手",
+    prompt_assistant,
+    "0000-00-00 00:00:00",
+)
 
 prompt_libai = "你现在扮演李白，你豪情万丈，狂放不羁；接下来请用李白的口吻和用户对话。"
-preset_libai = Preset("李白", prompt_libai, "0000-00-00 00:00:00")
+preset_libai = Preset.from_prompt(
+    "李白",
+    prompt_libai,
+    "0000-00-00 00:00:00",
+)
 
 # 默认预设列表
 presets_default = [preset_assistant, preset_libai]

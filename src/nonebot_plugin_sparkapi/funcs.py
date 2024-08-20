@@ -78,14 +78,13 @@ def solve_at(msg: str | None = None) -> UniMessage:
 
 
 # 未安装 OneBot 适配器时, 跳过迁移检查
-def _migrate_ob11(  # pyright: ignore[reportRedeclaration]
-    event: Event, session_id: str
-):
+def _migrate_ob11(event: Event, session_id: str):
     return
 
 
 with contextlib.suppress(ImportError):
     from nonebot.adapters.onebot.v11 import MessageEvent, PrivateMessageEvent
+    from .config import DATA_PATH as NEW_DATA_PATH
 
     OLD_DATA_PATH = Path() / "SparkApi"
 
@@ -118,7 +117,7 @@ with contextlib.suppress(ImportError):
         if not ob11_user_fp.exists():
             return
 
-        user_fp = OLD_DATA_PATH / session_id
+        user_fp = NEW_DATA_PATH / session_id
         user_fp.mkdir(parents=True, exist_ok=True)
         session_fp = ob11_user_fp / "sessions.json"
         preset_fp = ob11_user_fp / "presets.json"
@@ -149,7 +148,7 @@ def _session_id(event: Event, session: EventSession, target: MsgTarget) -> str:
         case _:
             flag = SessionIdType.GROUP_USER
 
-    session_id = session.get_id(flag).replace(' ','_')
+    session_id = session.get_id(flag).replace(" ", "_")
     _migrate_ob11(event, session_id)
     return session_id
 

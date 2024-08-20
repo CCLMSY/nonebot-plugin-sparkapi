@@ -1,12 +1,10 @@
 from nonebot.plugin.on import on_message
-from nonebot.rule import Rule
 from nonebot_plugin_alconna.uniseg import MsgTarget
 
 from nonebot_plugin_sparkapi.config import conf
 
 if not conf.sparkapi_fl_private_chat:
 
-    @Rule
     async def fl_blockprivate(target: MsgTarget) -> bool:
         return target.private
 
