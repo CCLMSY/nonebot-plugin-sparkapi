@@ -16,15 +16,13 @@ class Config(BaseModel):
     sparkapi_model_version: str = "default"
     '''星火大模型的版本，默认为当前最新。可选值："default", "v4.0", "v3.5", "v3.0", "v2.0", "v1.5"'''
     sparkapi_model_top_k: int = 4
-    """平衡生成文本的质量和多样性。较小的 k 值会减少随机性，使得输出更加稳定；
-    而较大的 k 值会增加随机性，产生更多新颖的输出。取值范围[1, 6]，默认为4"""
+    """平衡生成文本的质量和多样性。较小的 k 值会减少随机性，使得输出更加稳定；而较大的 k 值会增加随机性，产生更多新颖的输出。取值范围[1, 6]，默认为4"""
     sparkapi_model_temperature: float = 0.5
-    """控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。
-    取值范围 (0，1]，默认为0.5"""
+    """控制结果随机性，取值越高随机性越强，即相同的问题得到的不同答案的可能性越高。取值范围 (0，1]，默认为0.5"""
     sparkpai_model_maxlength: int = 8000
     """
     单次上下文最大token长度，不能超过8000token。
-    
+
     1token≈1.5个中文字≈1个英文单词。保守起见，在本插件中1token取1.25个字符
 
     该值越大，对话历史记录保留越长，单次请求消耗token的最大值越大。建议取值范围：[4000,8000]
@@ -89,7 +87,13 @@ class Config(BaseModel):
     sparkapi_fl_private_chat: bool = True
     """允许私聊"""
     sparkapi_fl_group_public: bool = False
-    """群聊启用公共会话：True：所有人共享同一会话；False：每个人的会话各自独立"""
+    """
+    群聊启用公共会话
+
+    True：所有人共享同一会话
+
+    False：每个人的会话各自独立
+    """
     sparkapi_fl_interflow: bool = False
     """对于同一用户，群聊与私聊数据互通（公共会话启用时，群聊仍独立）"""
     sparkapi_fl_group_at: bool = True

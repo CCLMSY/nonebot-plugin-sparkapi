@@ -5,14 +5,17 @@ from nonebot.rule import to_me
 from nonebot_plugin_sparkapi.config import conf
 from nonebot_plugin_sparkapi.funcs import solve_at
 
-command_help = conf.sparkapi_commands["help"]
-priority = conf.sparkapi_priority + 1
 command_start = next(iter(get_driver().config.command_start), "/")
-
 commands = conf.sparkapi_commands
 commands_info = conf.sparkapi_commands_info
 
-matcher_help = on_command(command_help, rule=to_me(), priority=priority, block=True)
+
+matcher_help = on_command(
+    conf.sparkapi_commands["help"],
+    rule=to_me(),
+    priority=conf.sparkapi_priority + 1,
+    block=True,
+)
 
 
 @matcher_help.handle()

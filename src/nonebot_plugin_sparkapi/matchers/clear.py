@@ -1,17 +1,17 @@
-from nonebot.plugin.on import on_message
-from nonebot.rule import command, to_me
+from nonebot.plugin.on import on_command
+from nonebot.rule import to_me
 
 from nonebot_plugin_sparkapi.config import conf
 from nonebot_plugin_sparkapi.funcs import SessionID, solve_at
 
 from .session.base import clear_current
 
-command_clear = conf.sparkapi_commands["clear"]
-priority = conf.sparkapi_priority + 1
-fl_group_at = conf.sparkapi_fl_group_at
-
-rule = to_me() & command(command_clear)
-matcher_clear = on_message(rule=rule, priority=priority, block=True)
+matcher_clear = on_command(
+    conf.sparkapi_commands["clear"],
+    rule=to_me(),
+    priority=conf.sparkapi_priority + 1,
+    block=True,
+)
 
 
 @matcher_clear.handle()

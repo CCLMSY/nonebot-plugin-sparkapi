@@ -2,13 +2,18 @@
 name = "nonebot_plugin_sparkapi"
 version = "2.0.8"
 description = "Nonebot2 plugin that calls the official API of the iflyrec SparkDesk for all model versions, defaulting to the current latest"
-authors = [
-    {name = "CCLMSY", email = "2502408581@qq.com"},
+authors = [{ name = "CCLMSY", email = "2502408581@qq.com" }]
+dependencies = [
+    "nonebot2>=2.3.3",
+    "httpx>=0.27.0",
+    "websockets>=12.0",
+    "nonebot-plugin-alconna>=0.51.4",
+    "nonebot-plugin-localstore>=0.6.0,<1.0.0",
+    "nonebot-plugin-session>=0.3.2",
 ]
-dependencies = []
 requires-python = ">=3.10"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
 
 [build-system]
 requires = ["pdm-backend"]
