@@ -30,10 +30,12 @@ def get_help_info():
         "help",
         "clear",
         "preset",
-        "session",
-        "image_generation",
-        "ppt_generation",
+        "session"
     ]
+    if conf.sparkapi_fl_imggen:
+        command_list.append("image_generation")
+    if conf.sparkapi_fl_pptgen:
+        command_list.append("ppt_generation")
     for item in command_list:
         if commands[item]:
             help_info += f"\n{command_start+commands[item]}：{commands_info[item]}"

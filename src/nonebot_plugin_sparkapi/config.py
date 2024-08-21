@@ -14,7 +14,7 @@ class Config(BaseModel):
 
     # 模型设置
     sparkapi_model_version: str = "default"
-    '''星火大模型的版本，默认为当前最新。可选值："default", "v4.0", "v3.5", "v3.0", "v2.0", "v1.5"'''
+    '''星火大模型的版本，默认为当前最新。可选值："default", "v4.0", "v3.5", "128k", "v3.0", "v2.0", "v1.5"'''
     sparkapi_model_top_k: int = 4
     """平衡生成文本的质量和多样性。较小的 k 值会减少随机性，使得输出更加稳定；而较大的 k 值会增加随机性，产生更多新颖的输出。取值范围[1, 6]，默认为4"""
     sparkapi_model_temperature: float = 0.5

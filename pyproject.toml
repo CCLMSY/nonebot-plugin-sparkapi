@@ -22,3 +22,12 @@ build-backend = "pdm.backend"
 
 [tool.pdm]
 distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "nonebot2[fastapi]>=2.3.3",
+    "nonebot-adapter-onebot>=2.4.4",
+]
+
+[tool.nonebot]
+plugins = ["nonebot_plugin_alconna", "nonebot_plugin_localstore", "nonebot_plugin_session"]
