@@ -1,0 +1,19 @@
+[project]
+name = "nonebot-plugin-sparkapi"
+version = "3.0.0"
+description = "Nonebot2 plugin that calls the official API of the iflyrec SparkDesk"
+authors = [
+    {name = "CCLMSY", email = "2502408581@qq.com"},
+]
+dependencies = []
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
