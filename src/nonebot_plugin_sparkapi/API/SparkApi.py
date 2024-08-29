@@ -4,7 +4,6 @@ import hmac
 import json
 import ssl
 from datetime import datetime
-from time import mktime
 from urllib.parse import urlencode, urlparse
 from wsgiref.handlers import format_date_time
 
@@ -28,8 +27,6 @@ app_id = conf.sparkapi_app_id
 api_key = conf.sparkapi_api_key
 api_secret = conf.sparkapi_api_secret
 
-answer: dict[str, str] = {}
-
 
 def b64_sha256(key: str, msg: str) -> str:
     return base64.b64encode(
@@ -47,8 +44,7 @@ def create_url(spark_url: str):
     path = parsed.path
 
     # 生成RFC1123格式的时间戳
-    now = datetime.now()
-    date = format_date_time(mktime(now.timetuple()))
+    date = format_date_time(datetime.now().timestamp())
 
     # 拼接字符串
     signature_origin = f"host: {host}\n"
@@ -68,40 +64,28 @@ def create_url(spark_url: str):
     return url
 
 
-# 收到websockets消息的处理
-async def on_message(
-    ws: websockets.WebSocketClientProtocol,
-    session_id: str,
-    message: str | bytes,
-):
-    # logger.debug(message)
-    data = json.loads(message)
-    code = data["header"]["code"]
-    if code != 0:
-        await ws.close()
-        raise Exception(f"请求错误: {code=}, {data=}")
-
-    choices = data["payload"]["choices"]
-    status = choices["status"]
-    content = choices["text"][0]["content"]
-    answer[session_id] += content
-    if status == 2:
-        await ws.close()
-
-
-async def connect_ws(
-    url: str,
-    domain: str,
-    content: list[dict[str, str]],
-    session_id: str,
-):
+async def connect_ws(url: str, domain: str, content: list[dict[str, str]]) -> str:
     ws_url = create_url(url)
     ssl_context = ssl._create_unverified_context()
+    answer = ""
+
     async with websockets.connect(ws_url, ssl=ssl_context) as ws:
         params = json.dumps(gen_params(domain, content))
         await ws.send(params)
         async for message in ws:
-            await on_message(ws, session_id, message)
+            data = json.loads(message)
+            code = data["header"]["code"]
+            if code != 0:
+                await ws.close()
+                raise Exception(f"请求错误: {code=}, {data=}")
+
+            choices = data["payload"]["choices"]
+            answer += choices["text"][0]["content"]
+
+            if choices["status"] == 2:
+                await ws.close()
+
+    return answer
 
 
 def gen_params(domain: str, content: list[dict[str, str]]):
@@ -124,11 +108,8 @@ def gen_params(domain: str, content: list[dict[str, str]]):
 
 
 async def request_chat(session_id: str, question: str):
-    answer[session_id] = ""
     add_msg(session_id, "user", question)
-    current = session_select(session_id)
-    content = current.content
-    await connect_ws(Spark_url, domain, content, session_id)
-    res = answer[session_id]
+    session = session_select(session_id)
+    res = await connect_ws(Spark_url, domain, session.content)
     add_msg(session_id, "assistant", res)
     return res
