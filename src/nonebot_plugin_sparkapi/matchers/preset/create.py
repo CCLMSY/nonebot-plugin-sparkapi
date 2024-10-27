@@ -38,6 +38,6 @@ async def _(session_id: SessionID, state: T_State):
         msg = f"创建失败！请联系开发者。\n错误信息：{type(e)}: {e}"
         await solve_at(msg).finish()
 
-    new_preset = preset_select(session_id)
+    new_preset = preset_select(session_id,index=-1)
     msg = f"预设创建成功！\n{new_preset.get_info()}"
     await solve_at(msg).finish()
