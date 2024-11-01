@@ -1,4 +1,9 @@
-from nonebot.params import ArgPlainText
+from nonebot.adapters import Message
+from nonebot.matcher import Matcher
+
+from typing import Annotated
+
+from nonebot.params import ArgPlainText, CommandArg
 from nonebot.plugin.on import on_command
 from nonebot.rule import to_me
 
@@ -15,8 +20,16 @@ mathcer_pptgen = on_command(
 )
 
 
+@mathcer_pptgen.handle()
+async def _(matcher:Matcher, arg:Annotated[Message, CommandArg()]):
+    arg_text = arg.extract_plain_text().strip()
+    if arg_text:
+        matcher.set_arg("content", arg)
+
+
 @mathcer_pptgen.got("content", prompt="请输入生成PPT内容，回复“取消”取消生成")
 async def _(content: str = ArgPlainText()):
+    content = str(content)
     if content == "取消":
         await solve_at("已取消生成PPT").finish()
 
