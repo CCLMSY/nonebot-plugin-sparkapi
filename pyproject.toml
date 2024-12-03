@@ -1,16 +1,4 @@
 [project]
-<<<<<<< HEAD
-name = "nonebot-plugin-sparkapi"
-version = "3.0.0"
-description = "Nonebot2 plugin that calls the official API of the iflyrec SparkDesk"
-authors = [
-    {name = "CCLMSY", email = "2502408581@qq.com"},
-]
-dependencies = []
-requires-python = ">=3.11"
-readme = "README.md"
-license = {text = "MIT"}
-=======
 name = "nonebot_plugin_sparkapi"
 version = "2.0.9"
 description = "Nonebot2 plugin that calls the official API of the iflyrec SparkDesk for all model versions, defaulting to the current latest"
@@ -21,22 +9,18 @@ dependencies = [
     "websockets>=12.0",
     "nonebot-plugin-alconna>=0.51.4",
     "nonebot-plugin-localstore>=0.6.0,<1.0.0",
-    "nonebot-plugin-session>=0.3.2",
+    "nonebot-plugin-session>=0.2.3",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
->>>>>>> main
 
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
-
 [tool.pdm]
 distribution = true
-<<<<<<< HEAD
-=======
 
 [tool.pdm.dev-dependencies]
 dev = [
@@ -46,4 +30,3 @@ dev = [
 
 [tool.nonebot]
 plugins = ["nonebot_plugin_alconna", "nonebot_plugin_localstore", "nonebot_plugin_session"]
->>>>>>> main
