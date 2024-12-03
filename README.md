@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# nonebot-plugin-sparkapi
-=======
 <div align="center">
   <a href="https://v2.nonebot.dev/store"><img src="https://source.cclmsy.cc/Images/nbp_Sparkapi/nbp_logo.png" width="180" height="180" alt="NoneBotPluginLogo"></a>
   <br>
@@ -255,4 +252,3 @@ AI 绘图、AI 生成 PPT 功能的 API 信息在同一应用下与对话 API �
   - 支持 AI 对话
   - 支持上下文关联
   - 支持自定义预设、预设管理
->>>>>>> main
