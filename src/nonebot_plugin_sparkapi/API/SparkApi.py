@@ -9,6 +9,7 @@ from urllib.parse import urlencode, urlparse
 from wsgiref.handlers import format_date_time
 
 import websockets
+from websockets.asyncio.client import ClientConnection
 
 from nonebot_plugin_sparkapi import funcs
 from nonebot_plugin_sparkapi.config import conf
@@ -70,7 +71,7 @@ def create_url(spark_url: str):
 
 # 收到websockets消息的处理
 async def on_message(
-    ws: websockets.WebSocketClientProtocol,
+    ws: ClientConnection,
     session_id: str,
     message: str | bytes,
 ):
