@@ -6,28 +6,75 @@ authors = [{ name = "CCLMSY", email = "2502408581@qq.com" }]
 dependencies = [
     "nonebot2>=2.3.3",
     "httpx>=0.27.0",
-    "websockets>=12.0",
+    "websockets>=14.0",
     "nonebot-plugin-alconna>=0.51.4",
-    "nonebot-plugin-localstore>=0.6.0,<1.0.0",
+    "nonebot-plugin-localstore>=0.7.1,<1.0.0",
     "nonebot-plugin-session>=0.3.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
 
+[dependency-groups]
+dev = [
+    "nonebot2[fastapi]>=2.3.3",
+    "nonebot-adapter-onebot>=2.4.6",
+]
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
-
 [tool.pdm]
 distribution = true
 
-[tool.pdm.dev-dependencies]
-dev = [
-    "nonebot2[fastapi]>=2.3.3",
-    "nonebot-adapter-onebot>=2.4.4",
+[tool.uv]
+resolution = "lowest-direct"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = '\.pyi?$'
+extend-exclude = '''
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+src_paths = ["nonebot_plugin_exe_code", "tests"]
+extra_standard_library = ["typing_extensions"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "F",     # Pyflakes
+  "W",     # pycodestyle warnings
+  "E",     # pycodestyle errors
+  "UP",    # pyupgrade
+  "ASYNC", # flake8-async
+  "C4",    # flake8-comprehensions
+  "T10",   # flake8-debugger
+  "T20",   # flake8-print
+  "PYI",   # flake8-pyi
+  "PT",    # flake8-pytest-style
+  "Q",     # flake8-quotes
+  "RUF",   # Ruff-specific rules
+]
+ignore = [
+  "C408",   # unnecessary-collection-call
+  "E402",   # module-import-not-at-top-of-file
+  "RUF001", # ambiguous-unicode-character-string
+  "RUF002", # ambiguous-unicode-character-docstring
+  "RUF003", # ambiguous-unicode-character-comment
 ]
 
-[tool.nonebot]
-plugins = ["nonebot_plugin_alconna", "nonebot_plugin_localstore", "nonebot_plugin_session"]
+[tool.pyright]
+pythonVersion = "3.10"
+pythonPlatform = "All"
+typeCheckingMode = "standard"
+reportShadowedImports = false
+disableBytesTypePromotions = true
