@@ -1,12 +1,6 @@
-from . import block_private, chat, clear, help, imggen, pptgen, preset, session
+import importlib
+import pathlib
 
-__all__ = [
-    "block_private",
-    "chat",
-    "clear",
-    "help",
-    "imggen",
-    "pptgen",
-    "preset",
-    "session",
-]
+for path in pathlib.Path(__file__).parent.iterdir():
+    if path.is_file() and path.suffix == ".py" and not path.stem.startswith("_"):
+        importlib.import_module(f".{path.stem}", __name__)

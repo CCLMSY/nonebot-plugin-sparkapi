@@ -1,46 +1,36 @@
-from nonebot.adapters import Message
-from nonebot.matcher import Matcher
+import contextlib
 
-from typing import Annotated
+from nonebot import logger
+from nonebot.exception import ActionFailed
+from nonebot_plugin_alconna import UniMessage
 
-from nonebot.params import ArgPlainText, CommandArg
-from nonebot.plugin.on import on_command
-from nonebot.rule import to_me
-
-from nonebot_plugin_sparkapi.API.PPTGenApi import request_PPT
-from nonebot_plugin_sparkapi.config import conf
-from nonebot_plugin_sparkapi.funcs import solve_at
+from ..api.ppt import request_ppt
+from ..utils import ParamOrPrompt
+from .alc import matcher
 
 
-mathcer_pptgen = on_command(
-    conf.sparkapi_commands["ppt_generation"],
-    rule=to_me(),
-    priority=conf.sparkapi_priority + 1,
-    block=True,
-)
-
-
-@mathcer_pptgen.handle()
-async def _(matcher:Matcher, arg:Annotated[Message, CommandArg()]):
-    arg_text = arg.extract_plain_text().strip()
-    if arg_text:
-        matcher.set_arg("content", arg)
-
-
-@mathcer_pptgen.got("content", prompt="请输入生成PPT内容，回复“取消”取消生成")
-async def _(content: str = ArgPlainText()):
-    content = str(content)
-    if content == "取消":
-        await solve_at("已取消生成PPT").finish()
-
-    msg = "已收到请求，正在生成中...\n过程大约需要60s，请耐心等待"
-    await solve_at(msg).send()
+@matcher.assign("~ppt")
+async def assign_ppt(
+    content: str = ParamOrPrompt(
+        param="content",
+        prompt_msg="请输入生成PPT内容，回复“取消”取消生成",
+        cancel_msg="已取消生成PPT",
+    ),
+) -> None:
+    receipt = await UniMessage.text(
+        "已收到请求，正在生成中...\n过程大约需要60s，请耐心等待"
+    ).send()
 
     try:
-        ppt = await request_PPT(content)
+        ppt = await request_ppt(content)
     except Exception as e:
         msg = f"PPT生成失败！请联系开发者。\n错误信息：{type(e)}: {e}"
+        logger.exception("PPT生成失败")
     else:
         msg = f"生成成功！\n复制链接前往浏览器下载：\n{ppt}"
 
-    await solve_at(msg).finish()
+    if receipt.recallable:
+        with contextlib.suppress(ActionFailed):
+            await receipt.recall()
+
+    await UniMessage.text(msg).finish()

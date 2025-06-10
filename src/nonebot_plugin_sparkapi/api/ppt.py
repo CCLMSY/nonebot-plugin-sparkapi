@@ -7,20 +7,15 @@ from typing import Any
 import httpx
 from nonebot.log import logger
 
-from nonebot_plugin_sparkapi.config import conf
-
-app_id = conf.sparkapi_app_id
-api_secret = conf.sparkapi_api_secret
+from ..config import conf
 
 
 def _md5(text: str) -> str:
-    return hashlib.md5(text.encode("utf-8")).hexdigest()
+    return hashlib.md5(text.encode("utf-8")).hexdigest()  # noqa: S324
 
 
 class AIPPT:
-    def __init__(self, text: str):
-        self.APPID = app_id
-        self.APISecret = api_secret
+    def __init__(self, text: str) -> None:
         self.text = text
         self.headers = self.sign_headers()
 
@@ -36,13 +31,13 @@ class AIPPT:
     def sign_headers(self) -> dict[str, str]:
         timestamp = str(int(time.time()))
         try:
-            auth = _md5(self.APPID + timestamp)
-            signature = self.hmac_sha1_encrypt(auth, self.APISecret)
+            auth = _md5(conf.app_id + timestamp)
+            signature = self.hmac_sha1_encrypt(auth, conf.api_secret)
         except Exception as e:
             logger.debug(f"AIPPT 签名获取失败: {e}")
             raise ValueError("AIPPT 签名获取失败") from e
         return {
-            "appId": self.APPID,
+            "appId": conf.app_id,
             "timestamp": timestamp,
             "signature": signature,
             "Content-Type": "application/json; charset=utf-8",
@@ -62,10 +57,10 @@ class AIPPT:
         if resp["code"] == 0:
             logger.success("创建PPT任务成功")
             return resp["data"]["sid"]
-        else:
-            logger.error("创建PPT任务失败")
-            # TODO: 抛出特定的错误类型
-            raise Exception("创建PPT任务失败")
+
+        logger.error("创建PPT任务失败")
+        # TODO: 抛出特定的错误类型
+        raise Exception("创建PPT任务失败")
 
     async def get_process(self, sid: int) -> dict[str, Any]:
         async with httpx.AsyncClient() as client:
@@ -73,7 +68,7 @@ class AIPPT:
                 f"https://zwapi.xfyun.cn/api/aippt/progress?sid={sid}",
                 headers=self.headers,
             )
-            # logger.debug(f"AIPPT.get_process({sid=}): {response.text}")
+            logger.debug(f"AIPPT.get_process({sid=}): {response.text}")
             return response.json()
 
     async def get_result(self) -> str:
@@ -81,13 +76,13 @@ class AIPPT:
         while True:
             resp = await self.get_process(task_id)
             if resp["data"]["process"] == 100:
-                PPTurl = resp["data"]["pptUrl"]
+                ppt_url = resp["data"]["pptUrl"]
                 break
-        return PPTurl
+        return ppt_url
 
 
 # ---------------------------API Request---------------------------
 
 
-async def request_PPT(content: str) -> str:
+async def request_ppt(content: str) -> str:
     return await AIPPT(content).get_result()

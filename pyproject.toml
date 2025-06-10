@@ -4,50 +4,31 @@ version = "2.0.9"
 description = "Nonebot2 plugin that calls the official API of the iflyrec SparkDesk for all model versions, defaulting to the current latest"
 authors = [{ name = "CCLMSY", email = "2502408581@qq.com" }]
 dependencies = [
-    "nonebot2>=2.3.3",
-    "httpx>=0.27.0",
-    "websockets>=14.0",
-    "nonebot-plugin-alconna>=0.51.4",
-    "nonebot-plugin-localstore>=0.7.1,<1.0.0",
-    "nonebot-plugin-session>=0.3.2",
+  "nonebot2>=2.3.3",
+  "httpx>=0.27.0",
+  "websockets>=14.0",
+  "nonebot-plugin-alconna>=0.57.0",
+  "nonebot-plugin-localstore>=0.7.1,<1.0.0",
+  "nonebot-plugin-session>=0.3.2",
+  "nonebot-plugin-waiter>=0.8.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
 
 [dependency-groups]
-dev = [
-    "nonebot2[fastapi]>=2.3.3",
-    "nonebot-adapter-onebot>=2.4.6",
-]
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
-[tool.pdm]
-distribution = true
+dev = ["nonebot2[fastapi]>=2.3.3", "nonebot-adapter-onebot>=2.4.6"]
 
 [tool.uv]
+package = true
 resolution = "lowest-direct"
-
-[tool.black]
-line-length = 88
-target-version = ["py310"]
-include = '\.pyi?$'
-extend-exclude = '''
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-skip_gitignore = true
-src_paths = ["nonebot_plugin_exe_code", "tests"]
-extra_standard_library = ["typing_extensions"]
 
 [tool.ruff]
 line-length = 88
 target-version = "py310"
+
+[tool.ruff.format]
+line-ending = "lf"
 
 [tool.ruff.lint]
 select = [
@@ -55,22 +36,84 @@ select = [
   "W",     # pycodestyle warnings
   "E",     # pycodestyle errors
   "UP",    # pyupgrade
+  "RUF",   # Ruff-specific rules
+  "ERA",   # eradicate
+  "FLY",   # flynt
+  "FURB",  # refurb
+  "I",     # isort
+  "N",     # PEP8-naming
+  "PD",    # pandas-vet
+  "PERF",  # Perflint
+  "PGH",   # pygrep-hooks
+  "TRY",   # tryceratops
   "ASYNC", # flake8-async
+  "ANN",   # flake8-annotations
+  "S",     # flake8-bandit
+  "A",     # flake8-builtins
+  "B",     # flake8-bugbear
+  "COM",   # flake8-commas
   "C4",    # flake8-comprehensions
+  "DTZ",   # flake8-datetimez
   "T10",   # flake8-debugger
+  "EM",    # flake8-errmsg
+  "FA",    # flake8-future-annotations
+  "ISC",   # flake8-implicit-str-concat
+  "ICN",   # flake8-import-conventions
+  "PIE",   # flake8-pie
   "T20",   # flake8-print
   "PYI",   # flake8-pyi
   "PT",    # flake8-pytest-style
   "Q",     # flake8-quotes
-  "RUF",   # Ruff-specific rules
+  "RSE",   # flake8-raise
+  "RET",   # flake8-return
+  "SLF",   # flake8-self
+  "SIM",   # flake8-simplify
+  "SLOT",  # flake8-slots
+  "TID",   # flake8-tidy-imports
+  "ARG",   # flake8-unused-arguments
+  "PTH",   # flake8-use-pathlib
+  "TCH",   # flake8-type-checking
+  "YTT",   # flake8-2020
 ]
 ignore = [
-  "C408",   # unnecessary-collection-call
   "E402",   # module-import-not-at-top-of-file
   "RUF001", # ambiguous-unicode-character-string
   "RUF002", # ambiguous-unicode-character-docstring
   "RUF003", # ambiguous-unicode-character-comment
+  "ANN202", # missing-return-type-private-function
+  "ANN401", # any-type
+  "TRY003", # raise-vanilla-args
+  "TRY301", # raise-within-try
+  "EM102",  # f-string-in-exception
+  "COM812", # missing-trailing-comma
+  "ERA001", # commented-out-code
+  "EM101",  # raw-string-in-exception
+  "TID252", # relative-imports
+  "ISC001", # single-line-implicit-string-concatenation
+  "DTZ005", # call-datetime-now-without-tzinfo
+  "S311",   # suspicious-non-cryptographic-random-usage
+  "PGH003", # blanket-type-ignore
+  "N818",   # error-suffix-on-exception-name
+  "PYI041", # redundant-numeric-union
+  "S101",   # assert
+  "B911",   # batched-without-explicit-strict
+  "PGH004", # blanket-noqa
+  "TRY002", # raise-vanilla-class
 ]
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["id", "dir", "help"]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.lint.isort]
+known-first-party = ["nonebot_plugin_sparkapi"]
+extra-standard-library = ["typing_extensions"]
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
 
 [tool.pyright]
 pythonVersion = "3.10"

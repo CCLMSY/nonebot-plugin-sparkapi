@@ -399,7 +399,7 @@ wheels = [
 
 [[package]]
 name = "nonebot-plugin-alconna"
-version = "0.51.4"
+version = "0.57.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "arclet-alconna" },
@@ -410,9 +410,9 @@ dependencies = [
     { name = "nonebot2" },
     { name = "tarina" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/da/8a/5e6eee8bf2644bdfcd5bf2f9c4b7d607d7c97c29e6da5f2daf6e07f65e5b/nonebot_plugin_alconna-0.51.4.tar.gz", hash = "sha256:a43720a497c4fefb0da89e8d9996f8261bb0e92f70a991f2f4fd14c8ed628995", size = 140443, upload-time = "2024-08-13T14:59:59.059Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6f/05/da7b17568268cbbcf03516b47eca59e6bdaae243cf22b76183281b0be6cf/nonebot_plugin_alconna-0.57.0.tar.gz", hash = "sha256:7a9a4bf373f3f6836611dbde1a0917b84441a534dd6f2b20dae3ba6fff142858", size = 146776, upload-time = "2025-04-04T02:31:08.437Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8e/c2/d740ce0779b0434e8e85e3930b3138b295ba83b2cd1960f3619a516cbe6f/nonebot_plugin_alconna-0.51.4-py3-none-any.whl", hash = "sha256:9d31e537eb35e45a3753ad5d95dc0359f777269d6ce7e39fa74d515cad9a0981", size = 198806, upload-time = "2024-08-13T14:59:57.588Z" },
+    { url = "https://files.pythonhosted.org/packages/85/19/3ccd4161d85ae7fd393f7ac0e288e77b00c44387aa69066606c2324970ba/nonebot_plugin_alconna-0.57.0-py3-none-any.whl", hash = "sha256:6c4bcce1a9aa176244b4c011b19b1cea00269c4c6794cd4e90d8dd7990ec3ec9", size = 202847, upload-time = "2025-04-04T02:31:06.996Z" },
 ]
 
 [[package]]
@@ -451,6 +451,7 @@ dependencies = [
     { name = "nonebot-plugin-alconna" },
     { name = "nonebot-plugin-localstore" },
     { name = "nonebot-plugin-session" },
+    { name = "nonebot-plugin-waiter" },
     { name = "nonebot2" },
     { name = "websockets" },
 ]
@@ -464,9 +465,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "httpx", specifier = ">=0.27.0" },
-    { name = "nonebot-plugin-alconna", specifier = ">=0.51.4" },
+    { name = "nonebot-plugin-alconna", specifier = ">=0.57.0" },
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.1,<1.0.0" },
     { name = "nonebot-plugin-session", specifier = ">=0.3.2" },
+    { name = "nonebot-plugin-waiter", specifier = ">=0.8.0" },
     { name = "nonebot2", specifier = ">=2.3.3" },
     { name = "websockets", specifier = ">=14.0" },
 ]
