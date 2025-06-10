@@ -10,6 +10,7 @@ from nonebot_plugin_alconna import (
     Option,
     Subcommand,
     UniMessage,
+    get_target,
     on_alconna,
 )
 
@@ -17,7 +18,9 @@ from ..config import conf
 
 
 def subcommand(
-    name: str, *args: Args | Option | Subcommand, help_text: str
+    name: str,
+    *args: Args | Option | Subcommand,
+    help_text: str,
 ) -> Subcommand:
     return Subcommand(
         conf.commands[name],
@@ -124,7 +127,7 @@ class AtExtension(Extension):
         elif isinstance(send, Message):
             send = UniMessage.generate_sync(message=send)
 
-        if conf.fl_group_at and not UniMessage.get_target(event).private:
+        if conf.fl_group_at and not get_target(event).private:
             send = UniMessage.at(event.get_user_id()) + send
 
         return send

@@ -4,6 +4,7 @@ from nonebot_plugin_alconna import UniMessage
 from ..session import UserSession
 from ..utils import IndexParam, ParamOrPrompt, prompt
 from .alc import matcher
+from .help import get_session_commands
 
 
 @matcher.assign("~session.save")
@@ -99,3 +100,8 @@ async def assign_session_delete(
         msg = "会话删除成功！"
 
     await UniMessage.text(msg).finish()
+
+
+@matcher.assign("~session")
+async def assign_session(user_session: UserSession) -> None:
+    await UniMessage.text(f"{user_session.show()}\n\n{get_session_commands()}").finish()

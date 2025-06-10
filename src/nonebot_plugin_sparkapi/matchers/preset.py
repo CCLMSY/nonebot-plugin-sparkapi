@@ -5,6 +5,7 @@ from ..preset import UserPreset
 from ..session import UserSession
 from ..utils import IndexParam, ParamOrPrompt, prompt
 from .alc import matcher
+from .help import get_preset_commands
 
 
 @matcher.assign("~preset.create")
@@ -40,7 +41,6 @@ async def assign_preset_delete(
     index: int = IndexParam(
         prompt_msg="{presets}\n\n输入序号选择预设，回复其他内容取消删除",
         cancel_msg="已取消删除",
-
     ),
     check: bool = False,
 ) -> None:
@@ -113,3 +113,8 @@ async def assign_preset_show(
         msg = ps.show()
 
     await UniMessage.text(msg).finish()
+
+
+@matcher.assign("~preset")
+async def assign_preset(user_preset: UserPreset) -> None:
+    await UniMessage.text(f"{user_preset.show()}\n\n{get_preset_commands()}").finish()

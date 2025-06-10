@@ -1,5 +1,3 @@
-import functools
-
 from ..config import conf
 from .alc import matcher
 
@@ -8,7 +6,6 @@ commands = conf.commands
 commands_info = conf.commands_info
 
 
-@functools.cache
 def get_help_info() -> str:
     help_info = "【帮助信息】"
     chat_cmd = cmd_start + conf.command_chat if conf.command_chat else "直接发送消息"
@@ -23,6 +20,26 @@ def get_help_info() -> str:
             help_info += f"\n{cmd_start + commands[item]}：{commands_info[item]}"
     help_info += "\n\n发送对应命令，根据提示操作即可"
     return help_info
+
+
+def get_preset_commands() -> str:
+    result = "💫操作"
+    result += f"\n{cmd_start + commands['preset']}：{commands_info['preset']}"
+    for key in {"preset_create", "preset_set", "preset_show", "preset_delete"}:
+        result += (
+            f"\n{cmd_start + commands['preset']} {commands[key]}: {commands_info[key]}"
+        )
+    return result
+
+
+def get_session_commands() -> str:
+    result = "💫操作"
+    result += f"\n{cmd_start + commands['session']}：{commands_info['session']}"
+    for key in {"session_save", "session_load", "session_show", "session_delete"}:
+        result += (
+            f"\n{cmd_start + commands['session']} {commands[key]}：{commands_info[key]}"
+        )
+    return result
 
 
 @matcher.assign("~help")
