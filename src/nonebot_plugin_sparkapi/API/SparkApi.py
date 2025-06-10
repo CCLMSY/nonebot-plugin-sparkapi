@@ -53,7 +53,10 @@ def create_url(spark_url: str):
 
     # 使用hmac-sha256进行加密
     signature = b64_sha256(api_secret, signature_origin)
-    auth_origin = f'api_key="{api_key}", algorithm="hmac-sha256", headers="host date request-line", signature="{signature}"'
+    auth_origin = (
+        f'api_key="{api_key}", algorithm="hmac-sha256", '
+        f'headers="host date request-line", signature="{signature}"'
+    )
     auth = base64.b64encode(auth_origin.encode("utf-8")).decode("utf-8")
 
     # 将请求的鉴权参数组合为字典

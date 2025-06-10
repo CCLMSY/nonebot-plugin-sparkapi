@@ -1,7 +1,12 @@
 import contextlib
 
 from nonebot.exception import ActionFailed
-from nonebot.params import ArgPlainText
+from nonebot.matcher import Matcher
+from nonebot.adapters import Message
+
+from typing import Annotated
+
+from nonebot.params import ArgPlainText, CommandArg
 from nonebot.plugin.on import on_command
 from nonebot.rule import to_me
 
@@ -18,8 +23,16 @@ mathcer_imggen = on_command(
 )
 
 
+@mathcer_imggen.handle()
+async def _(macher: Matcher, arg: Annotated[Message, CommandArg()]):
+    arg_text = arg.extract_plain_text().strip()
+    if arg_text:
+        macher.set_arg("content", arg)
+
+
 @mathcer_imggen.got("content", prompt="请输入生成图片内容，回复“取消”取消生成")
 async def _(session_id: SessionID, content=ArgPlainText()):
+    content = str(content)
     if content == "取消":
         await solve_at("已取消生成图片").finish()
 
