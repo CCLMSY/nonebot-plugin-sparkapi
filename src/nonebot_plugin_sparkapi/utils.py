@@ -1,12 +1,15 @@
-from collections.abc import Callable
+import contextlib
+from collections.abc import AsyncGenerator, Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, Any, Literal, cast, overload
 
 import nonebot_plugin_waiter.unimsg as waiter
+from nonebot import logger
 from nonebot.matcher import current_event
 from nonebot.params import Depends
 from nonebot_plugin_alconna import Arparma, MsgTarget, UniMessage, get_target
+from nonebot_plugin_alconna.uniseg import Receipt
 from nonebot_plugin_session import EventSession, SessionIdType
 
 from .config import conf
@@ -174,3 +177,20 @@ def IndexParam(  # noqa: N802
         return idx
 
     return Depends(dependency)
+
+
+@contextlib.asynccontextmanager
+async def catch_exc(
+    msg: str,
+    receipt: Receipt | None = None,
+) -> AsyncGenerator[None, None]:
+    try:
+        yield
+    except Exception as exc:
+        logger.opt(exception=exc).warning(msg)
+        text = f"{msg}, 请联系开发者\n\n错误信息: {type(exc)}\n{exc}"
+        await UniMessage.text(text).finish()
+    finally:
+        if receipt and receipt.recallable:
+            with contextlib.suppress(Exception):
+                await receipt.recall()

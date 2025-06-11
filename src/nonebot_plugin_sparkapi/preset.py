@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Annotated, Any
 from typing_extensions import Never, Self, overload
 
-from nonebot.compat import model_dump, type_validate_json, type_validate_python
+from nonebot.compat import model_dump, type_validate_json
 from nonebot.params import Depends
 from pydantic import BaseModel
 
@@ -24,14 +24,7 @@ class Preset(BaseModel):
             content=prompt,
         )
 
-    @classmethod
-    def from_dict(cls, preset_dict: dict[str, Any]) -> Self:
-        return type_validate_python(cls, preset_dict)
-
-    def to_dict(self) -> dict:
-        return model_dump(self)
-
-    def show(self) -> str:
+    def get_info(self) -> str:
         return (
             f"【预设信息】\n"
             f"预设名称：{self.title}\n"
@@ -97,13 +90,14 @@ class UserPresetData:
             encoding="utf-8",
         )
 
-    def insert(self, title: str, prompt: str, index: int = -1) -> None:
+    def insert(self, title: str, prompt: str, index: int = -1) -> Preset:
         preset = Preset.from_prompt(title, prompt)
         if index >= 0:
             self.presets.insert(index, preset)
         else:
             self.presets.append(preset)
         self.save()
+        return preset
 
     @overload
     def delete(self, *, title: str) -> None: ...
@@ -156,7 +150,7 @@ class UserPresetData:
         return None
 
 
-async def _get_user_preset(session_id: SessionID):
+async def _get_user_preset(session_id: SessionID) -> UserPresetData:
     return UserPresetData.load(session_id)
 
 

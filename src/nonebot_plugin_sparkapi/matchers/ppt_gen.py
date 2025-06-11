@@ -1,11 +1,7 @@
-import contextlib
-
-from nonebot import logger
-from nonebot.exception import ActionFailed
 from nonebot_plugin_alconna import UniMessage
 
 from ..api.ppt import request_ppt
-from ..utils import ParamOrPrompt
+from ..utils import ParamOrPrompt, catch_exc
 from .alc import matcher
 
 
@@ -21,16 +17,6 @@ async def assign_ppt(
         "已收到请求，正在生成中...\n过程大约需要60s，请耐心等待"
     ).send()
 
-    try:
+    async with catch_exc("PPT生成失败", receipt):
         ppt = await request_ppt(content)
-    except Exception as e:
-        msg = f"PPT生成失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        logger.exception("PPT生成失败")
-    else:
-        msg = f"生成成功！\n复制链接前往浏览器下载：\n{ppt}"
-
-    if receipt.recallable:
-        with contextlib.suppress(ActionFailed):
-            await receipt.recall()
-
-    await UniMessage.text(msg).finish()
+    await matcher.finish(f"生成成功！\n复制链接前往浏览器下载：\n{ppt}")

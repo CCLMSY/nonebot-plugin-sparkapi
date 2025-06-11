@@ -1,9 +1,8 @@
-from nonebot import logger
 from nonebot_plugin_alconna import UniMessage
 
 from ..preset import UserPreset
 from ..session import UserSession
-from ..utils import IndexParam, ParamOrPrompt, prompt
+from ..utils import IndexParam, ParamOrPrompt, catch_exc, prompt
 from .alc import matcher
 from .help import get_preset_commands
 
@@ -24,15 +23,9 @@ async def assign_preset_create(
         cancel_check=lambda x: not x.strip(),
     ),
 ) -> None:
-    try:
-        user_preset.insert(title, prompt)
-    except Exception as e:
-        msg = f"创建失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        await UniMessage.text(msg).finish()
-
-    new_preset = user_preset.select()
-    msg = f"预设创建成功！\n{new_preset.show()}"
-    await UniMessage.text(msg).finish()
+    async with catch_exc("预设创建失败"):
+        new_preset = user_preset.insert(title, prompt)
+    await matcher.finish(f"预设创建成功！\n{new_preset.get_info()}")
 
 
 @matcher.assign("~preset.delete")
@@ -47,20 +40,13 @@ async def assign_preset_delete(
 ) -> None:
     if not check:
         await prompt(
-            f"{user_preset.select(index=index).show()}\n\n"
+            f"{user_preset.select(index=index).get_info()}\n\n"
             "确认删除该预设？\n回复“确认”以确认删除，回复其他内容取消删除",
             not_confirm="已取消删除",
         )
 
-    try:
+    async with catch_exc("删除预设失败"):
         user_preset.delete(index=index)
-    except Exception as e:
-        logger.exception("删除预设失败")
-        await (
-            UniMessage.text("删除失败！请联系开发者。")
-            .text(f"\n错误信息：{type(e)}: {e}")
-            .finish()
-        )
 
     await UniMessage.text("预设删除成功！").finish()
 
@@ -77,16 +63,11 @@ async def assign_preset_set(
         annotation=UserPreset,
     ),
 ) -> None:
-    try:
-        ps = user_preset.select(index=index)
-        user_session.set_prompt(ps)
-    except Exception as e:
-        msg = f"设置失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        logger.exception("设置预设失败")
-    else:
-        msg = f"已选择预设：{ps.title}"
+    async with catch_exc("设置预设失败"):
+        preset = user_preset.select(index=index)
+        user_session.set_prompt(preset)
 
-    await UniMessage.text(msg).finish()
+    await UniMessage.text(f"已选择预设：{preset.title}").finish()
 
 
 @matcher.assign("~preset.show")
@@ -98,15 +79,10 @@ async def assign_preset_show(
         annotation=UserPreset,
     ),
 ) -> None:
-    try:
-        ps = user_preset.select(index=index)
-    except Exception as e:
-        msg = f"查看失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        logger.exception("查看预设失败")
-    else:
-        msg = ps.show()
+    async with catch_exc("查看预设失败"):
+        preset = user_preset.select(index=index)
 
-    await UniMessage.text(msg).finish()
+    await UniMessage.text(preset.get_info()).finish()
 
 
 @matcher.assign("~preset")

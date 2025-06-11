@@ -1,8 +1,7 @@
-from nonebot import logger
 from nonebot_plugin_alconna import UniMessage
 
 from ..session import UserSession
-from ..utils import IndexParam, ParamOrPrompt, prompt
+from ..utils import IndexParam, ParamOrPrompt, catch_exc, prompt
 from .alc import matcher
 from .help import get_session_commands
 
@@ -17,14 +16,9 @@ async def assign_session_save(
         cancel_check=lambda x: not x.strip(),
     ),
 ) -> None:
-    try:
+    async with catch_exc("会话保存失败"):
         user_session.save_current(title)
-    except Exception as e:
-        msg = f"保存失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        logger.exception("会话保存失败")
-    else:
-        msg = f"会话保存成功！\n{user_session.show()}"
-    await UniMessage.text(msg).finish()
+    await matcher.finish(f"会话保存成功！\n{user_session.show()}")
 
 
 @matcher.assign("~session.load")
@@ -44,15 +38,9 @@ async def assign_session_load(
             not_confirm="已取消加载",
         )
 
-    try:
+    async with catch_exc("会话加载失败"):
         user_session.load_session(index)
-    except Exception as e:
-        msg = f"加载失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        logger.exception("会话加载失败")
-    else:
-        msg = "会话加载成功！\n" + user_session.current.get_info()
-
-    await UniMessage.text(msg).finish()
+    await matcher.finish(f"会话加载成功！\n{user_session.current.get_info()}")
 
 
 @matcher.assign("~session.show")
@@ -64,7 +52,8 @@ async def assign_session_show(
         annotation=UserSession,
     ),
 ) -> None:
-    session = user_session.select(index)
+    async with catch_exc("会话显示失败"):
+        session = user_session.select(index)
     await UniMessage.text(session.get_info()).finish()
 
 
@@ -85,15 +74,9 @@ async def assign_session_delete(
             not_confirm="已取消删除",
         )
 
-    try:
+    async with catch_exc("会话删除失败"):
         user_session.delete(index)
-    except Exception as e:
-        msg = f"删除失败！请联系开发者。\n错误信息：{type(e)}: {e}"
-        logger.exception("会话删除失败")
-    else:
-        msg = "会话删除成功！"
-
-    await UniMessage.text(msg).finish()
+    await UniMessage.text("会话删除成功！").finish()
 
 
 @matcher.assign("~session")

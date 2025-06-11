@@ -1,11 +1,7 @@
-import contextlib
-
-from nonebot import logger
-from nonebot.exception import ActionFailed
 from nonebot_plugin_alconna import UniMessage
 
 from ..api.image import request_image_generate
-from ..utils import ParamOrPrompt
+from ..utils import ParamOrPrompt, catch_exc
 from .alc import matcher
 
 
@@ -21,16 +17,6 @@ async def assign_image(
         "已收到请求，正在生成中...\n过程大约需要30s，请耐心等待"
     ).send()
 
-    try:
+    async with catch_exc("图片生成失败", receipt):
         img = await request_image_generate(content)
-    except Exception as e:
-        msg = UniMessage.text(f"图片生成失败！请联系开发者。\n错误信息：{type(e)}: {e}")
-        logger.exception("图片生成失败")
-    else:
-        msg = UniMessage.image(raw=img)
-
-    if receipt.recallable:
-        with contextlib.suppress(ActionFailed):
-            await receipt.recall()
-
-    await msg.finish()
+    await UniMessage.image(raw=img).finish()

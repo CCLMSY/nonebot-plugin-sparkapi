@@ -1,5 +1,5 @@
 import json
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal
 from typing_extensions import Self
 
 from nonebot.compat import model_dump, type_validate_python
@@ -31,13 +31,6 @@ class Session(BaseModel):
         session = cls(title=preset.title, time=format_time(), content=[])
         session.set_prompt(preset)
         return session
-
-    @classmethod
-    def from_dict(cls, session_dict: dict[str, Any]) -> Self:
-        return type_validate_python(cls, session_dict)
-
-    def to_dict(self) -> dict:
-        return model_dump(self)
 
     def _calc_content_length(self) -> int:
         return sum(len(msg.dump_json()) for msg in self.content)
