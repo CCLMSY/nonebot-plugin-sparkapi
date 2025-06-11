@@ -2,43 +2,45 @@ from ..config import conf
 from .alc import matcher
 
 cmd_start = conf.get_cmd_start()
-commands = conf.commands
-commands_info = conf.commands_info
+cmd_info = conf.command_info
+base_cmd = cmd_start + cmd_info.base + " "
 
 
 def get_help_info() -> str:
     help_info = "【帮助信息】"
     chat_cmd = cmd_start + conf.command_chat if conf.command_chat else "直接发送消息"
-    help_info += f"\n{chat_cmd}：{commands_info['chat']}"
-    command_list = ["help", "clear", "preset", "session"]
+    help_info += f"\n{chat_cmd}：{cmd_info.chat}"
+
+    cmd_list = ["help", "clear", "preset", "session"]
     if conf.fl_imggen:
-        command_list.append("image_generation")
+        cmd_list.append("image")
     if conf.fl_pptgen:
-        command_list.append("ppt_generation")
-    for item in command_list:
-        if commands[item]:
-            help_info += f"\n{cmd_start + commands[item]}：{commands_info[item]}"
+        cmd_list.append("ppt")
+    for item in cmd_list:
+        name, desc = getattr(cmd_info, item)
+        help_info += f"\n{base_cmd + name}：{desc}"
+
     help_info += "\n\n发送对应命令，根据提示操作即可"
     return help_info
 
 
 def get_preset_commands() -> str:
     result = "💫操作"
-    result += f"\n{cmd_start + commands['preset']}：{commands_info['preset']}"
-    for key in {"preset_create", "preset_set", "preset_show", "preset_delete"}:
-        result += (
-            f"\n{cmd_start + commands['preset']} {commands[key]}: {commands_info[key]}"
-        )
+    preset_cmd = base_cmd + cmd_info.preset[0]
+    result += f"\n{base_cmd + cmd_info.preset[0]}：{cmd_info.preset[1]}"
+    for key in ["preset_create", "preset_set", "preset_show", "preset_delete"]:
+        name, desc = getattr(cmd_info, key)
+        result += f"\n{preset_cmd} {name}: {desc}"
     return result
 
 
 def get_session_commands() -> str:
     result = "💫操作"
-    result += f"\n{cmd_start + commands['session']}：{commands_info['session']}"
-    for key in {"session_save", "session_load", "session_show", "session_delete"}:
-        result += (
-            f"\n{cmd_start + commands['session']} {commands[key]}：{commands_info[key]}"
-        )
+    session_cmd = base_cmd + cmd_info.session[0]
+    result += f"\n{session_cmd}：{cmd_info.session[1]}"
+    for key in ["session_save", "session_load", "session_show", "session_delete"]:
+        name, desc = getattr(cmd_info, key)
+        result += f"\n{session_cmd} {name}：{desc}"
     return result
 
 

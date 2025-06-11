@@ -1,9 +1,38 @@
-import nonebot_plugin_localstore as store
 from nonebot import get_driver, get_plugin_config
+from nonebot.compat import PYDANTIC_V2
+from nonebot_plugin_localstore import get_plugin_data_dir
 from pydantic import BaseModel
 
 
-class ScopedConfig(BaseModel):
+def _generate_alias(name: str) -> str:
+    if name in ("version", "top_k", "temperature", "maxlength"):
+        name = f"model_{name}"
+    return f"sparkapi_{name}"
+
+
+class CommandInfo(BaseModel):
+    base: str = "spark"
+    chat: str = "与机器人进行对话"
+
+    help: tuple[str, str] = ("help", "显示帮助信息")
+    clear: tuple[str, str] = ("clear", "清空当前对话")
+    image: tuple[str, str] = ("image", "AI根据文字描述绘制一张图片")
+    ppt: tuple[str, str] = ("ppt", "AI根据文字描述制作PPT")
+
+    preset: tuple[str, str] = ("preset", "预设管理")
+    preset_create: tuple[str, str] = ("create", "创建人物预设")
+    preset_set: tuple[str, str] = ("set", "切换人物预设")
+    preset_show: tuple[str, str] = ("show", "显示人物预设")
+    preset_delete: tuple[str, str] = ("delete", "删除人物预设")
+
+    session: tuple[str, str] = ("session", "会话管理")
+    session_save: tuple[str, str] = ("save", "保存本次对话记录")
+    session_load: tuple[str, str] = ("load", "加载保存的对话记录")
+    session_show: tuple[str, str] = ("show", "显示对话记录")
+    session_delete: tuple[str, str] = ("delete", "删除对话记录")
+
+
+class Config(BaseModel):
     # API信息：讯飞开放平台控制台（https://console.xfyun.cn/）中的“服务接口认证信息”
     app_id: str
     """APP ID"""
@@ -57,47 +86,11 @@ class ScopedConfig(BaseModel):
     私聊阻断（=priority）< 功能（=priority+1）< 对话（=priority+2）
     """
 
-    # fmt: off
     # 命令设置
     command_chat: str = ""
     """机器人对话指令（默认：为""即可直接对话）"""
-    # 命令
-    commands: dict[str, str] = {
-        "base" : "spark",                   # 命令前缀
-        "preset" : "preset",                # 预设管理
-            "preset_create" : "create",     # 创建人物预设
-            "preset_set" : "set",           # 切换人物预设
-            "preset_show" : "show",         # 显示人物预设
-            "preset_delete" : "delete",     # 删除人物预设
-        "session" : "session",              # 会话管理
-            "session_save" : "save",        # 保存对话记录
-            "session_load" : "load",        # 加载对话记录
-            "session_show" : "show",        # 显示对话记录
-            "session_delete" : "delete",    # 删除对话记录
-        "clear" : "clear",                  # 清空当前对话
-        "image" : "image",                  # AI绘图
-        "ppt" : "ppt",                      # AI制作PPT
-        "help" : "help",                    # 帮助信息
-    }
-    # 命令说明，用于生成帮助信息
-    commands_info: dict[str, str] = {
-        "chat" : "与机器人进行对话",
-        "preset" : "预设管理",
-            "preset_create" : "创建人物预设",
-            "preset_set" : "选择人物预设",
-            "preset_show" : "显示人物预设",
-            "preset_delete" : "删除人物预设",
-        "session" : "会话管理",
-            "session_save" : "保存本次对话记录",
-            "session_load" : "加载上次保存的对话记录",
-            "session_show" : "显示对话记录",
-            "session_delete" : "删除对话记录",
-        "clear" : "清空当前对话",
-        "image" : "AI根据文字描述绘制一张图片",
-        "ppt" : "AI根据文字描述制作PPT",
-        "help" : "显示帮助信息",
-    }
-    # fmt: on
+    command_info: CommandInfo = CommandInfo()
+    """命令信息"""
 
     require_at: bool = True
     """是否需要@机器人才能触发对话"""
@@ -145,12 +138,19 @@ class ScopedConfig(BaseModel):
     @property
     def help_command(self) -> str:
         cmd_start = self.get_cmd_start() if self.use_cmd_start else ""
-        return f"{cmd_start}{self.commands['base']} --help"
+        return f"{cmd_start}{self.command_info.base} help"
+
+    if PYDANTIC_V2:
+        from pydantic import ConfigDict
+
+        model_config = ConfigDict(alias_generator=_generate_alias)
+        del ConfigDict
+
+    else:
+
+        class Config:
+            alias_generator = _generate_alias
 
 
-class Config(BaseModel):
-    sparkapi: ScopedConfig
-
-
-conf = get_plugin_config(Config).sparkapi
-DATA_PATH = store.get_plugin_data_dir()
+conf = get_plugin_config(Config)
+DATA_PATH = get_plugin_data_dir()

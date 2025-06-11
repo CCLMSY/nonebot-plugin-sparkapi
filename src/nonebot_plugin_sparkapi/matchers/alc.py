@@ -19,83 +19,39 @@ from ..utils import check_at
 
 
 def subcommand(
-    name: str,
+    info: tuple[str, str],
     *args: Args | Option | Subcommand,
-    help_text: str,
 ) -> Subcommand:
-    return Subcommand(
-        conf.commands[name],
-        *args,
-        dest=name.split("_")[-1],
-        help_text=help_text,
-    )
+    name, help_text = info
+    return Subcommand(name, *args, dest=name.split("_")[-1], help_text=help_text)
 
 
+cmd_info = conf.command_info
+arg_index = Args["index?#序号", str]
+opt_check = Option("-y|--yes|--check", dest="check")
 alc = Alconna(
-    conf.commands["base"],
-    subcommand("help", help_text="显示帮助信息"),
-    subcommand("clear", help_text="清空当前会话"),
+    cmd_info.base,
+    subcommand(cmd_info.help),
+    subcommand(cmd_info.clear),
+    subcommand(cmd_info.image, Args["content?#生成图片内容", AllParam]),
+    subcommand(cmd_info.ppt, Args["content?#生成PPT内容", AllParam]),
     subcommand(
-        "image",
-        Args["content?#生成图片内容", AllParam],
-        help_text="根据文本描述生成图片",
-    ),
-    subcommand(
-        "ppt",
-        Args["content?#生成PPT内容", AllParam],
-        help_text="根据文本描述生成PPT",
-    ),
-    subcommand(
-        "preset",
+        cmd_info.preset,
         subcommand(
-            "preset_create",
+            cmd_info.preset_create,
             Args["title?#预设名称", str],
             Args["prompt?#预设提示词", AllParam],
-            help_text="创建新的预设",
         ),
-        subcommand(
-            "preset_delete",
-            Args["index?#预设序号", str],
-            Option("-y|--yes|--check", dest="check"),
-            help_text="删除指定预设",
-        ),
-        subcommand(
-            "preset_set",
-            Args["index?#预设序号", str],
-            help_text="切换当前预设",
-        ),
-        subcommand(
-            "preset_show",
-            Args["index?#预设序号", str],
-            help_text="查看预设详情",
-        ),
-        help_text="预设相关操作",
+        subcommand(cmd_info.preset_delete, arg_index, opt_check),
+        subcommand(cmd_info.preset_set, arg_index),
+        subcommand(cmd_info.preset_show, arg_index),
     ),
     subcommand(
-        "session",
-        subcommand(
-            "session_save",
-            Args["title?#会话名称", str],
-            help_text="保存当前会话",
-        ),
-        subcommand(
-            "session_load",
-            Args["index?#会话序号", str],
-            Option("-y|--yes|--check", dest="check"),
-            help_text="加载指定会话",
-        ),
-        subcommand(
-            "session_show",
-            Args["index?#会话序号", str],
-            help_text="查看会话详情",
-        ),
-        subcommand(
-            "session_delete",
-            Args["index?#会话序号", str],
-            Option("-y|--yes|--check", dest="check"),
-            help_text="删除指定会话",
-        ),
-        help_text="会话相关操作",
+        cmd_info.session,
+        subcommand(cmd_info.session_save, Args["title?#会话名称", str]),
+        subcommand(cmd_info.session_load, arg_index, opt_check),
+        subcommand(cmd_info.session_show, arg_index),
+        subcommand(cmd_info.session_delete, arg_index, opt_check),
     ),
     meta=CommandMeta(
         description="科大讯飞星火大模型官方API聊天机器人插件",
