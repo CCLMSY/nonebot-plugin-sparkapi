@@ -12,6 +12,9 @@ else:
     from nonebot.compat import field_validator
 
 
+_property = functools.cached_property if PYDANTIC_V2 else property
+
+
 def _generate_alias(name: str) -> str:
     if name in ("version", "top_k", "temperature", "maxlength"):
         name = f"model_{name}"
@@ -146,7 +149,7 @@ class Config(BaseModel):
     bot_name: str = ""
     """机器人名字"""
 
-    @functools.cached_property
+    @_property
     def cmd_start(self) -> str:
         return (
             next(iter(get_driver().config.command_start), "/")
@@ -154,7 +157,7 @@ class Config(BaseModel):
             else ""
         )
 
-    @functools.cached_property
+    @_property
     def cmd_sep(self) -> str:
         return (
             next(iter(get_driver().config.command_sep), ".")
@@ -162,7 +165,7 @@ class Config(BaseModel):
             else " "
         )
 
-    @property
+    @_property
     def help_command(self) -> str:
         return (
             f"{self.cmd_start}{self.command_info.base}"
