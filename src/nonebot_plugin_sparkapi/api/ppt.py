@@ -31,13 +31,13 @@ class AIPPT:
     def sign_headers(self) -> dict[str, str]:
         timestamp = str(int(time.time()))
         try:
-            auth = _md5(conf.app_id + timestamp)
-            signature = self.hmac_sha1_encrypt(auth, conf.api_secret)
+            auth = _md5(conf.app_id.get_secret_value() + timestamp)
+            signature = self.hmac_sha1_encrypt(auth, conf.api_secret.get_secret_value())
         except Exception as e:
             logger.debug(f"AIPPT 签名获取失败: {e}")
             raise ValueError("AIPPT 签名获取失败") from e
         return {
-            "appId": conf.app_id,
+            "appId": conf.app_id.get_secret_value(),
             "timestamp": timestamp,
             "signature": signature,
             "Content-Type": "application/json; charset=utf-8",

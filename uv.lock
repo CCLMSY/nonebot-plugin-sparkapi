@@ -469,7 +469,7 @@ requires-dist = [
     { name = "nonebot-plugin-localstore", specifier = ">=0.7.1,<1.0.0" },
     { name = "nonebot-plugin-session", specifier = ">=0.3.2" },
     { name = "nonebot-plugin-waiter", specifier = ">=0.8.0" },
-    { name = "nonebot2", specifier = ">=2.3.3" },
+    { name = "nonebot2", specifier = ">=2.4.2" },
     { name = "websockets", specifier = ">=14.0" },
 ]
 
@@ -493,9 +493,11 @@ wheels = [
 
 [[package]]
 name = "nonebot2"
-version = "2.3.3"
+version = "2.4.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "anyio" },
+    { name = "exceptiongroup" },
     { name = "loguru" },
     { name = "pydantic" },
     { name = "pygtrie" },
@@ -504,9 +506,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "yarl" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/55/d3/e5b08680ea40a4dad555b450a083b13b7a97cec044c17faa4700addd0a6f/nonebot2-2.3.3.tar.gz", hash = "sha256:4fa7707de5d708c27cc49493bc78a07fee2ba01f5516835a2ea5fbebb49b9dfa", size = 93239, upload-time = "2024-08-18T03:58:40.119Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/06/754d4aea53d1a6622956c9d9a261760b15df03f95d7540666b85ba48d653/nonebot2-2.4.2.tar.gz", hash = "sha256:cf72d5920503ff373ba1d7963f3ddf573db913eb504e3b68ee347efb937db27d", size = 94868, upload-time = "2025-03-12T03:57:45.705Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/07/f410138ea6993b8a9beb5f78dd2394e9f532817eed90a653fb5a9ca9ce1d/nonebot2-2.3.3-py3-none-any.whl", hash = "sha256:5bc8d073091347f29c4a1a2f927c24a8941e5d286c77139376259318b9bbfc68", size = 110983, upload-time = "2024-08-18T03:58:38.635Z" },
+    { url = "https://files.pythonhosted.org/packages/26/a8/18b79572cb6178a18bc2da76a041fc6b9f6308c5d376f5c7cbd84f4acf2d/nonebot2-2.4.2-py3-none-any.whl", hash = "sha256:ed3e970cdb6c885fb23349b65a045c08cf3ac7f43e28564ae0c72d3671ecda74", size = 115183, upload-time = "2025-03-12T03:57:43.988Z" },
 ]
 
 [package.optional-dependencies]

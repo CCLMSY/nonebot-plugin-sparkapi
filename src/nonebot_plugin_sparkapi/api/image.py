@@ -39,7 +39,7 @@ def create_url() -> str:
     signature_origin += f"POST {IG_url.path} HTTP/1.1"
 
     # 进行hmac-sha256进行加密
-    signature = b64_sha256(conf.api_secret, signature_origin)
+    signature = b64_sha256(conf.api_secret.get_secret_value(), signature_origin)
     auth_origin = (
         f'api_key="{conf.api_key}", algorithm="hmac-sha256", '
         f'headers="host date request-line", signature="{signature}"'

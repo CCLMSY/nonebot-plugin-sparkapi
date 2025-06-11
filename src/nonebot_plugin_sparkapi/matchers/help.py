@@ -1,9 +1,10 @@
 from ..config import conf
 from .alc import matcher
 
-cmd_start = conf.get_cmd_start()
+cmd_start = conf.cmd_start
+cmd_sep = conf.cmd_sep
 cmd_info = conf.command_info
-base_cmd = cmd_start + cmd_info.base + " "
+base_cmd = cmd_start + cmd_info.base + cmd_sep
 
 
 def get_help_info() -> str:
@@ -30,7 +31,7 @@ def get_preset_commands() -> str:
     result += f"\n{base_cmd + cmd_info.preset[0]}：{cmd_info.preset[1]}"
     for key in ["preset_create", "preset_set", "preset_show", "preset_delete"]:
         name, desc = getattr(cmd_info, key)
-        result += f"\n{preset_cmd} {name}: {desc}"
+        result += f"\n{preset_cmd}{cmd_sep}{name}: {desc}"
     return result
 
 
@@ -40,7 +41,7 @@ def get_session_commands() -> str:
     result += f"\n{session_cmd}：{cmd_info.session[1]}"
     for key in ["session_save", "session_load", "session_show", "session_delete"]:
         name, desc = getattr(cmd_info, key)
-        result += f"\n{session_cmd} {name}：{desc}"
+        result += f"\n{session_cmd}{cmd_sep}{name}：{desc}"
     return result
 
 

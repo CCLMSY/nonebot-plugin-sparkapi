@@ -1,7 +1,15 @@
-from nonebot import get_driver, get_plugin_config
+import functools
+from typing import TYPE_CHECKING
+
+from nonebot import get_driver, get_plugin_config, logger
 from nonebot.compat import PYDANTIC_V2
 from nonebot_plugin_localstore import get_plugin_data_dir
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
+
+if TYPE_CHECKING:
+    from pydantic import field_validator  # V2
+else:
+    from nonebot.compat import field_validator
 
 
 def _generate_alias(name: str) -> str:
@@ -31,14 +39,21 @@ class CommandInfo(BaseModel):
     session_show: tuple[str, str] = ("show", "显示对话记录")
     session_delete: tuple[str, str] = ("delete", "删除对话记录")
 
+    @field_validator("base", mode="after")
+    @staticmethod
+    def validate_base(value: str) -> str:
+        if not value:
+            raise ValueError("base command cannot be empty")
+        return value.strip().lower()
+
 
 class Config(BaseModel):
     # API信息：讯飞开放平台控制台（https://console.xfyun.cn/）中的“服务接口认证信息”
-    app_id: str
+    app_id: SecretStr
     """APP ID"""
-    api_secret: str
+    api_secret: SecretStr
     """API Secret"""
-    api_key: str
+    api_key: SecretStr
     """API Key"""
 
     # 模型设置
@@ -131,14 +146,28 @@ class Config(BaseModel):
     bot_name: str = ""
     """机器人名字"""
 
-    @staticmethod
-    def get_cmd_start() -> str:
-        return next(iter(get_driver().config.command_start), "/")
+    @functools.cached_property
+    def cmd_start(self) -> str:
+        return (
+            next(iter(get_driver().config.command_start), "/")
+            if self.use_cmd_start is True
+            else ""
+        )
+
+    @functools.cached_property
+    def cmd_sep(self) -> str:
+        return (
+            next(iter(get_driver().config.command_sep), ".")
+            if self.use_cmd_sep is True
+            else " "
+        )
 
     @property
     def help_command(self) -> str:
-        cmd_start = self.get_cmd_start() if self.use_cmd_start else ""
-        return f"{cmd_start}{self.command_info.base} help"
+        return (
+            f"{self.cmd_start}{self.command_info.base}"
+            f"{self.cmd_sep}{self.command_info.help[0]}"
+        )
 
     if PYDANTIC_V2:
         from pydantic import ConfigDict
@@ -153,4 +182,5 @@ class Config(BaseModel):
 
 
 conf = get_plugin_config(Config)
+logger.debug(f"Loaded config: {conf!r}")
 DATA_PATH = get_plugin_data_dir()
