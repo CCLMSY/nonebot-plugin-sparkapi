@@ -33,13 +33,11 @@ async def assign_session_load(
     index: int = IndexParam(
         prompt_msg="{sessions}\n\n输入序号选择会话，回复其他内容取消加载",
         cancel_msg="已取消加载",
+        annotation=UserSession,
     ),
-    yes: bool = False,
+    check: bool = False,
 ) -> None:
-    if err_msg := user_session.check_index(index):
-        await UniMessage.text(err_msg).finish()
-
-    if not yes:
+    if not check:
         await prompt(
             f"{user_session.select(index).get_info()}\n\n"
             "确认加载该会话？\n回复“确认”以确认加载，回复其他内容取消加载",
@@ -63,11 +61,9 @@ async def assign_session_show(
     index: int = IndexParam(
         prompt_msg="{sessions}\n\n输入序号显示会话内容，回复其他内容取消显示",
         cancel_msg="已取消显示",
+        annotation=UserSession,
     ),
 ) -> None:
-    if err_msg := user_session.check_index(index):
-        await UniMessage.text(err_msg).finish()
-
     session = user_session.select(index)
     await UniMessage.text(session.get_info()).finish()
 
@@ -78,13 +74,11 @@ async def assign_session_delete(
     index: int = IndexParam(
         prompt_msg="{sessions}\n\n输入序号选择会话，回复其他内容取消删除",
         cancel_msg="已取消删除",
+        annotation=UserSession,
     ),
-    yes: bool = False,
+    check: bool = False,
 ) -> None:
-    if err_msg := user_session.check_index(index):
-        await UniMessage.text(err_msg).finish()
-
-    if not yes:
+    if not check:
         await prompt(
             f"{user_session.select(index).get_info()}\n\n"
             "确认删除该会话？\n回复“确认”以确认删除，回复其他内容取消删除",

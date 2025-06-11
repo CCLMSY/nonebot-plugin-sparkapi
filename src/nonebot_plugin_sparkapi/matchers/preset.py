@@ -41,12 +41,10 @@ async def assign_preset_delete(
     index: int = IndexParam(
         prompt_msg="{presets}\n\n输入序号选择预设，回复其他内容取消删除",
         cancel_msg="已取消删除",
+        annotation=UserPreset,
     ),
     check: bool = False,
 ) -> None:
-    if (err_msg := user_preset.check_index(index)) is not None:
-        await UniMessage.text(err_msg).finish()
-
     if not check:
         await prompt(
             f"{user_preset.select(index=index).show()}\n\n"
@@ -76,11 +74,9 @@ async def assign_preset_set(
         "\n\n输入序号选择预设，回复其他内容取消设置"
         "\n⚠设置预设将清除当前对话记录",
         cancel_msg="已取消设置",
+        annotation=UserPreset,
     ),
 ) -> None:
-    if err_msg := user_preset.check_index(index):
-        await UniMessage.text(err_msg).finish()
-
     try:
         ps = user_preset.select(index=index)
         user_session.set_prompt(ps)
@@ -99,11 +95,9 @@ async def assign_preset_show(
     index: int = IndexParam(
         prompt_msg="{presets}\n\n输入序号显示预设内容，回复其他内容取消显示",
         cancel_msg="已取消显示",
+        annotation=UserPreset,
     ),
 ) -> None:
-    if err_msg := user_preset.check_index(index):
-        await UniMessage.text(err_msg).finish()
-
     try:
         ps = user_preset.select(index=index)
     except Exception as e:

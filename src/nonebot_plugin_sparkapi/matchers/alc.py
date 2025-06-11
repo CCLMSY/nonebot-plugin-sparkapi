@@ -1,5 +1,6 @@
 from typing_extensions import override
 
+from arclet.alconna import AllParam
 from nonebot.adapters import Bot, Event, Message
 from nonebot.rule import to_me
 from nonebot_plugin_alconna import (
@@ -10,11 +11,11 @@ from nonebot_plugin_alconna import (
     Option,
     Subcommand,
     UniMessage,
-    get_target,
     on_alconna,
 )
 
 from ..config import conf
+from ..utils import check_at
 
 
 def subcommand(
@@ -33,15 +34,15 @@ def subcommand(
 alc = Alconna(
     conf.commands["base"],
     subcommand("help", help_text="显示帮助信息"),
-    subcommand("clear", help_text="清除当前会话"),
+    subcommand("clear", help_text="清空当前会话"),
     subcommand(
         "image",
-        Args["content?#生成图片内容", str],
+        Args["content?#生成图片内容", AllParam],
         help_text="根据文本描述生成图片",
     ),
     subcommand(
         "ppt",
-        Args["content?#生成PPT内容", str],
+        Args["content?#生成PPT内容", AllParam],
         help_text="根据文本描述生成PPT",
     ),
     subcommand(
@@ -49,7 +50,7 @@ alc = Alconna(
         subcommand(
             "preset_create",
             Args["title?#预设名称", str],
-            Args["prompt?#预设提示词", str],
+            Args["prompt?#预设提示词", AllParam],
             help_text="创建新的预设",
         ),
         subcommand(
@@ -65,7 +66,7 @@ alc = Alconna(
         ),
         subcommand(
             "preset_show",
-            Args["index?#预设序号", int],
+            Args["index?#预设序号", str],
             help_text="查看预设详情",
         ),
         help_text="预设相关操作",
@@ -79,19 +80,19 @@ alc = Alconna(
         ),
         subcommand(
             "session_load",
-            Args["index?#会话序号", int],
-            Option("-y|--yes", dest="yes"),
+            Args["index?#会话序号", str],
+            Option("-y|--yes|--check", dest="check"),
             help_text="加载指定会话",
         ),
         subcommand(
             "session_show",
-            Args["index?#会话序号", int],
+            Args["index?#会话序号", str],
             help_text="查看会话详情",
         ),
         subcommand(
             "session_delete",
-            Args["index?#会话序号", int],
-            Option("-y|--yes", dest="yes"),
+            Args["index?#会话序号", str],
+            Option("-y|--yes|--check", dest="check"),
             help_text="删除指定会话",
         ),
         help_text="会话相关操作",
@@ -122,15 +123,9 @@ class AtExtension(Extension):
         event: Event,
         send: str | Message | UniMessage,
     ) -> UniMessage:
-        if isinstance(send, str):
-            send = UniMessage.text(send)
-        elif isinstance(send, Message):
+        if isinstance(send, Message):
             send = UniMessage.generate_sync(message=send)
-
-        if conf.fl_group_at and not get_target(event).private:
-            send = UniMessage.at(event.get_user_id()) + send
-
-        return send
+        return check_at(send)
 
 
 matcher = on_alconna(

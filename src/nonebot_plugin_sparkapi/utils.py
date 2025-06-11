@@ -1,14 +1,19 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Annotated, Any, Literal, overload
+from typing import TYPE_CHECKING, Annotated, Any, Literal, cast, overload
 
 import nonebot_plugin_waiter.unimsg as waiter
+from nonebot.matcher import current_event
 from nonebot.params import Depends
-from nonebot_plugin_alconna import Arparma, MsgTarget, UniMessage
+from nonebot_plugin_alconna import Arparma, MsgTarget, UniMessage, get_target
 from nonebot_plugin_session import EventSession, SessionIdType
 
 from .config import conf
+
+if TYPE_CHECKING:
+    from .preset import UserPresetData
+    from .session import UserSessionData
 
 ModelVersion = Literal["v4.0", "max-32k", "v3.5", "128k", "v3.0", "v1.5"]
 
@@ -74,6 +79,19 @@ def _session_id(session: EventSession, target: MsgTarget) -> str:
 SessionID = Annotated[str, Depends(_session_id)]
 
 
+def check_at(msg: str | UniMessage) -> UniMessage:
+    if isinstance(msg, str):
+        msg = UniMessage.text(msg)
+    if conf.fl_group_at:
+        try:
+            event = current_event.get()
+        except LookupError:
+            event = None
+        if event and not get_target(event).private:
+            msg = UniMessage.at(event.get_user_id()) + msg
+    return msg
+
+
 @overload
 async def prompt(msg: str) -> str | None: ...
 @overload
@@ -94,15 +112,15 @@ async def prompt(
     cancel_check: Callable[[str], bool] | None = None,
     not_confirm: str | None = None,
 ) -> str | None:
-    result = await waiter.prompt(msg)
+    result = await waiter.prompt(check_at(msg))
     if result is None or not (text := result.extract_plain_text().strip()):
         return None
     if on_cancel is not None and (
         (cancel_check is not None and cancel_check(text)) or text == "取消"
     ):
-        await UniMessage.text(on_cancel).finish()
+        await check_at(on_cancel).finish()
     if not_confirm is not None and text != "确认":
-        await UniMessage.text(not_confirm).finish()
+        await check_at(not_confirm).finish()
     return text
 
 
@@ -112,45 +130,47 @@ def ParamOrPrompt(  # noqa: N802
     cancel_msg: str,
     cancel_check: Callable[[str], bool] | None = None,
 ) -> Any:
-    def get_prompt_msg(session_id: str) -> str:
-        msg = prompt_msg
-
-        if "{presets}" in msg:
-            from .preset import UserPresetData
-
-            msg = msg.replace("{presets}", UserPresetData.load(session_id).show())
-
-        if "{sessions}" in msg:
-            from .session import UserSessionData
-
-            msg = msg.replace("{sessions}", UserSessionData.load(session_id).show())
-
-        return msg
+    from .preset import UserPresetData
+    from .session import UserSessionData
 
     async def dependency(arp: Arparma, session_id: SessionID) -> str:
-        arg: str | None = arp.all_matched_args.get(param)
+        arg: UniMessage | str | None = arp.all_matched_args.get(param)
         if arg is None:
-            arg = await prompt(
-                get_prompt_msg(session_id),
-                on_cancel=cancel_msg,
-                cancel_check=cancel_check,
-            )
+            msg = prompt_msg
+            if "{presets}" in msg:
+                msg = msg.replace("{presets}", UserPresetData.load(session_id).show())
+            if "{sessions}" in msg:
+                msg = msg.replace("{sessions}", UserSessionData.load(session_id).show())
+            arg = await prompt(msg, on_cancel=cancel_msg, cancel_check=cancel_check)
+        elif isinstance(arg, UniMessage):
+            arg = arg.extract_plain_text().strip()
         return arg
 
     return Depends(dependency)
 
 
-def IndexParam(prompt_msg: str, cancel_msg: str) -> Any:  # noqa: N802
+def IndexParam(  # noqa: N802
+    prompt_msg: str,
+    cancel_msg: str,
+    annotation: Any,  # UserPreset | UserSession
+) -> Any:
     async def dependency(
+        data: annotation,  # pyright: ignore[reportInvalidTypeForm]
         index: str = ParamOrPrompt(
             "index",
             prompt_msg=prompt_msg,
             cancel_msg=cancel_msg,
             cancel_check=lambda x: not x.isdigit(),
         ),
-    ):
-        if not index.isdigit():
-            await UniMessage.text("输入序号不合法").finish()
-        return int(index)
+    ) -> int:
+        try:
+            idx = int(index)
+        except ValueError:
+            await check_at("输入序号不合法").finish()
+
+        if err_msg := cast("UserPresetData | UserSessionData", data).check_index(idx):
+            await check_at(err_msg).finish()
+
+        return idx
 
     return Depends(dependency)

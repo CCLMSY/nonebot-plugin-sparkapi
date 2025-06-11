@@ -152,7 +152,7 @@ class UserPresetData:
         if index == 0:
             return "不允许选择默认预设"
         if index < 0 or index >= len(self.presets):
-            return "序号不合法"
+            return f"预设序号 {index} 不存在"
         return None
 
 
