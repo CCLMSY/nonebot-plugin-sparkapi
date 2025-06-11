@@ -150,6 +150,16 @@ class UserSessionData(BaseModel):
         text += "\n".join(f"{i}. {s.title}" for i, s in enumerate(self.saved, 1))
         return text
 
+    def rollback(self) -> None:
+        content = self.current.content
+        if not (non_system := [msg for msg in content if msg.role != "system"]):
+            raise Exception("当前会话没有对话记录")
+
+        non_system.pop()
+        while non_system and non_system[-1].role != "assistant":
+            non_system.pop()
+        content[:] = [msg for msg in content if msg.role == "system"] + non_system
+
     def check_index(self, index: int) -> str | None:
         if index <= 0 or index > len(self.saved):
             return f"会话序号 {index} 不存在"

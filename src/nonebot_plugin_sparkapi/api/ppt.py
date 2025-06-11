@@ -58,7 +58,7 @@ class AIPPT:
             logger.success("创建PPT任务成功")
             return resp["data"]["sid"]
 
-        logger.error("创建PPT任务失败")
+        logger.error(f"创建PPT任务失败: {resp!r}")
         # TODO: 抛出特定的错误类型
         raise Exception("创建PPT任务失败")
 

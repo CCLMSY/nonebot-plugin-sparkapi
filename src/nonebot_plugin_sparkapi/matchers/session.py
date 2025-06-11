@@ -79,6 +79,13 @@ async def assign_session_delete(
     await UniMessage.text("会话删除成功！").finish()
 
 
+@matcher.assign("~session.rollback")
+async def assign_session_rollback(user_session: UserSession) -> None:
+    async with catch_exc("会话回滚失败"):
+        user_session.rollback()
+    await matcher.finish(f"会话回滚成功！\n{user_session.current.get_info()}")
+
+
 @matcher.assign("~session")
 async def assign_session(user_session: UserSession) -> None:
     await UniMessage.text(f"{user_session.show()}\n\n{get_session_commands()}").finish()

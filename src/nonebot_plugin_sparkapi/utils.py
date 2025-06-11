@@ -188,7 +188,7 @@ async def catch_exc(
         yield
     except Exception as exc:
         logger.opt(exception=exc).warning(msg)
-        text = f"{msg}, 请联系开发者\n\n错误信息: {type(exc)}\n{exc}"
+        text = f"{msg}\n\n错误信息: {type(exc)}\n{exc}"
         await UniMessage.text(text).finish()
     finally:
         if receipt and receipt.recallable:

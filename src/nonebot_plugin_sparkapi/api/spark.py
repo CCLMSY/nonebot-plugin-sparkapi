@@ -101,7 +101,7 @@ async def connect_ws(content: list[SessionContent]) -> str:
 
 async def request_chat(session_id: str, question: str) -> str:
     session = UserSessionData.load(session_id)
-    session.add_msg("user", question)
     res = await connect_ws(session.current.content)
+    session.add_msg("user", question)
     session.add_msg("assistant", res)
     return res

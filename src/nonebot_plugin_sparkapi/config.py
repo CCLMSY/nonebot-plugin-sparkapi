@@ -41,6 +41,7 @@ class CommandInfo(BaseModel):
     session_load: tuple[str, str] = ("load", "加载保存的对话记录")
     session_show: tuple[str, str] = ("show", "显示对话记录")
     session_delete: tuple[str, str] = ("delete", "删除对话记录")
+    session_rollback: tuple[str, str] = ("rollback", "回滚上一条的对话记录")
 
     @field_validator("base", mode="after")
     @staticmethod
