@@ -24,16 +24,20 @@ class SessionContent(BaseModel):
 class Session(BaseModel):
     title: str
     time: str
+    system: str
     content: list[SessionContent]
 
     @classmethod
     def from_preset(cls, preset: Preset = preset_assistant) -> Self:
-        session = cls(title=preset.title, time=format_time(), content=[])
-        session.set_prompt(preset)
-        return session
+        return cls(
+            title=preset.title,
+            time=format_time(),
+            system=preset.content,
+            content=[],
+        )
 
     def _calc_content_length(self) -> int:
-        return sum(len(msg.dump_json()) for msg in self.content)
+        return len(self.system) + 15 + sum(len(msg.dump_json()) for msg in self.content)
 
     def check_length(self) -> None:
         while (
@@ -43,16 +47,17 @@ class Session(BaseModel):
             self.content.pop(1)
 
     def display_content(self, pref_len: int) -> str:
-        cnt = 0
-        conv = {"user": "User", "assistant": "Bot", "system": "System"}
+        pref_len += 15 + len(self.system)
+        conv = {"user": "User", "assistant": "Bot"}
         result: list[str] = []
         for msg in self.content[::-1]:
-            line = f"{conv[msg.role]}：{msg.content}"
-            cnt += len(line)
-            if cnt >= 4500 - pref_len:
+            line = f"{conv[msg.role]}: {msg.content}"
+            pref_len += len(line)
+            if pref_len >= 4500:
                 result.append("...")
                 break
             result.append(line)
+        result.append(f"System: {self.system}")
         result.append("【会话内容】")
         return "\n".join(result[::-1])
 
@@ -64,17 +69,24 @@ class Session(BaseModel):
         return info
 
     def set_prompt(self, preset: Preset) -> None:
-        if not self.content or self.content[0].role != "system":
-            content = SessionContent(role="system", content=preset.content)
-            self.content.insert(0, content)
-        else:
-            self.content[0].content = preset.content
+        self.system = preset.content
         self.check_length()
 
     def add_msg(self, role: Role, content: str) -> None:
         """追加消息"""
         self.content.append(SessionContent(role=role, content=content))
         self.check_length()
+
+    def get_content(self) -> list[SessionContent]:
+        return [SessionContent(role="system", content=self.system), *self.content]
+
+    def rollback(self) -> None:
+        if not self.content:
+            raise Exception("当前会话没有对话记录")
+
+        self.content.pop()
+        while self.content and self.content[-1].role != "assistant":
+            self.content.pop()
 
 
 def _check_session_file(session_id: str):
@@ -107,7 +119,6 @@ class UserSessionData(BaseModel):
 
     def add_msg(self, role: Role, content: str) -> None:
         self.current.add_msg(role, content)
-        self.save()
 
     def set_prompt(self, preset: Preset) -> None:
         self.current = Session.from_preset(preset)
@@ -121,7 +132,8 @@ class UserSessionData(BaseModel):
         session = Session(
             title=title,
             time=format_time(),
-            content=self.current.content.copy(),
+            system=self.current.system,
+            content=self.current.content[:],
         )
         if index >= 0:
             self.saved.insert(index, session)
@@ -134,7 +146,8 @@ class UserSessionData(BaseModel):
         self.current = Session(
             title=session.title,
             time=format_time(),
-            content=session.content.copy(),
+            system=session.system,
+            content=session.content[:],
         )
         self.save()
 
@@ -151,14 +164,7 @@ class UserSessionData(BaseModel):
         return text
 
     def rollback(self) -> None:
-        content = self.current.content
-        if not (non_system := [msg for msg in content if msg.role != "system"]):
-            raise Exception("当前会话没有对话记录")
-
-        non_system.pop()
-        while non_system and non_system[-1].role != "assistant":
-            non_system.pop()
-        content[:] = [msg for msg in content if msg.role == "system"] + non_system
+        self.current.rollback()
 
     def check_index(self, index: int) -> str | None:
         if index <= 0 or index > len(self.saved):

@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import hashlib
 import hmac
@@ -99,9 +100,22 @@ async def connect_ws(content: list[SessionContent]) -> str:
     return answer
 
 
+_session_lock: dict[str, asyncio.Lock] = {}
+
+
 async def request_chat(session_id: str, question: str) -> str:
-    session = UserSessionData.load(session_id)
-    res = await connect_ws(session.current.content)
-    session.add_msg("user", question)
-    session.add_msg("assistant", res)
-    return res
+    if session_id not in _session_lock:
+        _session_lock[session_id] = asyncio.Lock()
+
+    async with _session_lock[session_id]:
+        session = UserSessionData.load(session_id)
+        session.add_msg("user", question)
+        try:
+            answer = await connect_ws(session.current.get_content())
+        except Exception:
+            session.rollback()
+            raise
+        session.add_msg("assistant", answer)
+        session.save()
+
+    return answer
