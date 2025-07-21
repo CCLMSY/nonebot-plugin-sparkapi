@@ -1,7 +1,7 @@
 <div align="center">
-  <a href="https://v2.nonebot.dev/store"><img src="https://source.cclmsy.cc/Images/nbp_Sparkapi/nbp_logo.png" width="180" height="180" alt="NoneBotPluginLogo"></a>
+  <a href="https://v2.nonebot.dev/store"><img src="https://source.cclmsy.cc/repos/nonebot_plugin_sparkapi/nbp_logo.png" width="180" height="180" alt="NoneBotPluginLogo"></a>
   <br>
-  <p><img src="https://source.cclmsy.cc/Images/nbp_Sparkapi/NoneBotPlugin.svg" width="240" alt="NoneBotPluginText"></p>
+  <p><img src="https://source.cclmsy.cc/repos/nonebot_plugin_sparkapi/NoneBotPlugin.svg" width="240" alt="NoneBotPluginText"></p>
 </div>
 
 <div align="center">
@@ -210,8 +210,8 @@ AI 绘图、AI 生成 PPT 功能的 API 信息在同一应用下与对话 API �
 
 <details> <summary>效果图</summary>
 
-![Demo](https://source.cclmsy.cc/Images/nbp_Sparkapi/demo.png)
-[DemoPPT: 科大讯飞星火语言模型项目汇报.pptx](https://source.cclmsy.cc/Images/nbp_Sparkapi/科大讯飞星火语言模型项目汇报.pptx)
+![Demo](https://source.cclmsy.cc/repos/nonebot_plugin_sparkapi/demo.png)
+[DemoPPT: 科大讯飞星火语言模型项目汇报.pptx](https://source.cclmsy.cc/repos/nonebot_plugin_sparkapi/科大讯飞星火语言模型项目汇报.pptx)
 
 </details>
 
