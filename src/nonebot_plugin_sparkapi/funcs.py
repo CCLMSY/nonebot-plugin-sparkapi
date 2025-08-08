@@ -15,7 +15,7 @@ from .config import conf
 group_public = conf.sparkapi_fl_group_public
 max_length = conf.sparkpai_model_maxlength
 
-ModelVersion = Literal["v4.0", "v3.5", "128k", "v3.0", "v2.0", "v1.5"]
+ModelVersion = Literal["v4.0", "v3.5", "128k", "v3.0", "v2.0", "v1.5", "x1"]
 
 
 # 统一LLM模型版本，获取Spark URL、Domain
@@ -34,6 +34,8 @@ def unify_model_version(model_version: str) -> ModelVersion:
         version = "v2.0"
     elif model_version in {"1.0", "1.1", "1.5", "1", "lite"}:
         version = "v1.5"
+    elif model_version in {"x1"}:
+        version = "x1"
     else:
         raise ValueError("模型版本输入错误，请检查")
     return version
@@ -47,6 +49,7 @@ def get_Spark_url(model_version: ModelVersion):
         "v3.0": "wss://spark-api.xf-yun.com/v3.1/chat",
         "v2.0": "wss://spark-api.xf-yun.com/v2.1/chat",
         "v1.5": "wss://spark-api.xf-yun.com/v1.1/chat",
+		"x1": "wss://spark-api.xf-yun.com/v1/x1"
     }.get(model_version, None)
     if url is None:
         raise ValueError("模型版本输入错误，请检查")
@@ -61,6 +64,7 @@ def get_domain(model_version: ModelVersion):
         "v3.0": "generalv3",
         "v2.0": "generalv2",
         "v1.5": "general",
+        "x1": "x1",
     }.get(model_version, None)
     if domain is None:
         raise ValueError("模型版本输入错误，请检查")
