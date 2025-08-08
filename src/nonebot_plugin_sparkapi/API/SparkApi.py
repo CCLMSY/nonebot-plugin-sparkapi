@@ -83,8 +83,10 @@ async def on_message(
 
     choices = data["payload"]["choices"]
     status = choices["status"]
-    content = choices["text"][0]["content"]
-    answer[session_id] += content
+    text = choices["text"][0]
+    if ('content' in text and '' != text['content']):
+        answer[session_id] += text['content']
+
     if status == 2:
         await ws.close()
 
@@ -105,7 +107,7 @@ async def connect_ws(
 
 
 def gen_params(domain: str, content: list[dict[str, str]]):
-    return {
+    request = {
         "header": {"app_id": app_id, "uid": "CCLMSY"},
         "parameter": {
             "chat": {
@@ -118,6 +120,19 @@ def gen_params(domain: str, content: list[dict[str, str]]):
         },
         "payload": {"message": {"text": content}},
     }
+
+    if domain == "x1":
+        request["parameter"]["chat"]["tools"] = [
+            {
+                "web_search": {
+                    "search_mode": "normal",
+                    "enable": True
+                },
+                "type": "web_search"
+            }
+        ]
+
+    return request
 
 
 # ---------------------------API Request---------------------------
